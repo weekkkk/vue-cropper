@@ -1,0 +1,86 @@
+.f {
+  display: flex;
+}
+
+.d-c {
+  flex-direction: column;
+}
+
+.a-s {
+  align-items: flex-start;
+}
+
+
+.a-c {
+  align-items: center;
+}
+
+.j-c {
+  justify-content: center;
+}
+
+.f-w {
+  flex-wrap: wrap;
+}
+
+$spacer: 16px;
+
+.rg-1 {
+  row-gap: $spacer * 0.25;
+}
+
+.rg-2 {
+  row-gap: $spacer * 0.5;
+}
+
+.rg-3 {
+  row-gap: $spacer * 1;
+}
+
+.rg-4 {
+  row-gap: $spacer * 1.5;
+}
+
+.rg-5 {
+  row-gap: $spacer * 3;
+}
+
+.cg-1 {
+  column-gap: $spacer * 0.25;
+}
+
+.cg-2 {
+  column-gap: $spacer * 0.5;
+}
+
+.cg-3 {
+  column-gap: $spacer * 1;
+}
+
+.cg-4 {
+  column-gap: $spacer * 1.5;
+}
+
+.cg-5 {
+  column-gap: $spacer * 3;
+}
+
+.g-1 {
+  gap: $spacer * 0.25;
+}
+
+.g-2 {
+  gap: $spacer * 0.5;
+}
+
+.g-3 {
+  gap: $spacer * 1;
+}
+
+.g-4 {
+  gap: $spacer * 1.5;
+}
+
+.g-5 {
+  gap: $spacer * 3;
+}

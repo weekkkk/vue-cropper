@@ -1,0 +1,18 @@
+:root {
+  // Текст
+  --n-text: #222222;
+  // Подпись
+  --n-signature: #77828F;
+  // Заполнитель
+  --n-placeholder: #9FAFC0;
+}
+
+.c-text {
+  color: var(--n-text);
+}
+.c-signature {
+  color: var(--n-signature);
+}
+.c-placeholder {
+  color: var(--n-placeholder);
+}

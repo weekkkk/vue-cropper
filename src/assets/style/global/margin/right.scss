@@ -1,0 +1,17 @@
+$spacer: 16px;
+
+.mr-1 {
+  margin-right: calc($spacer * 0.25);
+}
+.mr-2 {
+  margin-right: calc($spacer * 0.5);
+}
+.mr-3 {
+  margin-right: calc($spacer * 1);
+}
+.mr-4 {
+  margin-right: calc($spacer * 1.5);
+}
+.mr-5 {
+  margin-right: calc($spacer * 3);
+}

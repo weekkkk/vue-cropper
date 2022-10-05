@@ -1,0 +1,17 @@
+$spacer: 16px;
+
+.pl-1 {
+  padding-left: calc($spacer * 0.25);
+}
+.pl-2 {
+  padding-left: calc($spacer * 0.5);
+}
+.pl-3 {
+  padding-left: calc($spacer * 1);
+}
+.pl-4 {
+  padding-left: calc($spacer * 1.5);
+}
+.pl-5 {
+  padding-left: calc($spacer * 3);
+}

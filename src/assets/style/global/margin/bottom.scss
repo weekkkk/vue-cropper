@@ -1,0 +1,17 @@
+  $spacer: 16px;
+
+  .mb-1 {
+    margin-bottom: calc($spacer * 0.25);
+  }
+  .mb-2 {
+    margin-bottom: calc($spacer * 0.5);
+  }
+  .mb-3 {
+    margin-bottom: calc($spacer * 1);
+  }
+  .mb-4 {
+    margin-bottom: calc($spacer * 1.5);
+  }
+  .mb-5 {
+    margin-bottom: calc($spacer * 3);
+  }

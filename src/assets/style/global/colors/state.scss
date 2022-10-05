@@ -1,0 +1,26 @@
+:root {
+  // Фокус
+  --n-main: #84DCC6;
+  // Успех
+  --n-success: #90DC84;
+  // Предупреждение
+  --n-warn: #EAD66C;
+  // Ошибка
+  --n-error: #DC8484;
+}
+
+.c-main {
+  color: var(--n-main);
+}
+
+.c-success {
+  color: var(--n-success);
+}
+
+.c-warn {
+  color: var(--n-warn);
+}
+
+.c-error {
+  color: var(--n-warn);
+}

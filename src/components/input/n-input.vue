@@ -1,5 +1,5 @@
 <template>
-  <div class="n-input">
+  <span class="n-input">
     <label> {{ label }}</label>
     <n-control
       :model-value="modelValue"
@@ -10,7 +10,7 @@
       :error="error"
       :success="success"
     />
-  </div>
+  </span>
 </template>
 
 <script setup lang="ts">
@@ -67,6 +67,7 @@ const onUpdate = (value: string | number) => {
   .n-input {
     display: flex;
     flex-direction: column;
+    width: 100%;
     row-gap: var(--n-control-row-gap);
     label {
       color: var(--n-signature);

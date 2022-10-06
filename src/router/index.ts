@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import { Cropper } from './modules'
+import { Cropper, Input } from './modules'
 const routes: Array<RouteRecordRaw> = [
   {
     name: "",
@@ -10,7 +10,11 @@ const routes: Array<RouteRecordRaw> = [
       /**
        * Кроппер фото
        */
-      Cropper
+      Cropper,
+      /**
+       * Инпут
+       */
+      Input
     ]
   },
 ];

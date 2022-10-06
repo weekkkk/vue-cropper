@@ -2,4 +2,8 @@
  * Кроппер фото
  */
 import Cropper from "./cropper";
-export { Cropper };
+/**
+ * Инпут
+ */
+import Input from "./input";
+export { Cropper, Input };

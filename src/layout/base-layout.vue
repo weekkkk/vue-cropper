@@ -3,7 +3,7 @@
     <div class="inner f cg-4 p-4">
       <sidebar-layout></sidebar-layout>
       <div class="container f d-c px-3 pb-3 rg-3">
-        <h4 class="c-main bb py-3">@{{ route.meta?.Title.toLowerCase() }}</h4>
+        <h4 class="c-main bb py-3">@{{ (route.meta?.Title as string).toLowerCase() }}</h4>
         <router-view></router-view>
       </div>
     </div>

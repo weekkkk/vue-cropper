@@ -50,9 +50,15 @@ const onOpen = () => {
   } else if (isOpen.value) isOpen.value = false;
 };
 /**
+ * При смене видимости
+ */
+const onClose = () => {
+  isOpen.value = false;
+};
+/**
  * Слушатель кликов
  */
-window.addEventListener("click", onOpen);
+window.addEventListener("click", onClose);
 </script>
 
 <style lang="scss" scoped>

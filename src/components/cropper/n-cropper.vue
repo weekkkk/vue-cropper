@@ -1,35 +1,5 @@
-<template>
-  <div class="n-cropper" ref="$el">
-    <n-drag :limit="[$el]">
-      <template #default="{ style }">
-        <img
-          :style="[sizeStyle, style]"
-          ref="$image"
-          alt="SRC Image"
-          src="https://img.freepik.com/premium-photo/astronaut-outer-open-space-planet-earth-stars-provide-background-erforming-space-planet-earth-sunrise-sunset-our-home-iss-elements-this-image-furnished-by-nasa_150455-16829.jpg?w=2000"
-        />
-      </template>
-    </n-drag>
-    <!-- src="https://komandirovka.ru/upload/iblock/b94/b940db82c961b142255daa1df9327d62.jpg" -->
-    <n-drag :limit="[$image]">
-      <template #default="{ style }">
-        <div class="crop" ref="$crop" :style="style">
-          <i class="left top"></i>
-          <i class="center top"></i>
-          <i class="right top"></i>
-          <i class="left middle"></i>
-          <i class="right middle"></i>
-          <i class="left bottom"></i>
-          <i class="center bottom"></i>
-          <i class="right bottom"></i>
-        </div>
-      </template>
-    </n-drag>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, ref } from "vue";
 import NDrag from "../drag/n-drag.vue";
 
 const $el = ref<HTMLElement>();
@@ -41,24 +11,50 @@ const kImage = computed(() => {
   const k = $image.value?.naturalWidth / $image.value?.naturalHeight;
   return k || 0;
 });
-const kWrap = computed(() => {
+const kEl = computed(() => {
   if (!$el.value) return 0;
   const k = $el.value?.offsetWidth / $el.value?.offsetHeight;
   return k || 0;
 });
 const sizeStyle = computed(() => {
-  console.log(kImage.value, kWrap.value);
-
-  if (kImage.value > kWrap.value)
+  if (!$el.value) return {};
+  if (kImage.value > kEl.value)
     return {
-      width: "100%",
+      width: `${$el.value.offsetWidth}px`,
+      height: `auto`,
     };
   return {
-    height: "100%",
+    height: `${$el.value.offsetHeight}px`,
+    width: `auto`,
   };
 });
-console.log(sizeStyle.value);
 </script>
+
+<template>
+  <div class="n-cropper" ref="$el">
+    <span class="image-wrap">
+      <img
+        :style="[sizeStyle]"
+        ref="$image"
+        alt="SRC Image"
+        src="https://images.unsplash.com/photo-1566895291281-ea63efd4bdbc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8OSUzQTE2fGVufDB8fDB8fA%3D%3D&w=1000&q=80"
+      />
+      <!-- src="https://img.freepik.com/premium-photo/astronaut-outer-open-space-planet-earth-stars-provide-background-erforming-space-planet-earth-sunrise-sunset-our-home-iss-elements-this-image-furnished-by-nasa_150455-16829.jpg?w=2000" -->
+      <n-drag>
+        <div class="crop" ref="$crop">
+          <i class="left top"></i>
+          <i class="center top"></i>
+          <i class="right top"></i>
+          <i class="left middle"></i>
+          <i class="right middle"></i>
+          <i class="left bottom"></i>
+          <i class="center bottom"></i>
+          <i class="right bottom"></i>
+        </div>
+      </n-drag>
+    </span>
+  </div>
+</template>
 
 <style lang="scss" scoped>
 .n-cropper {
@@ -72,11 +68,14 @@ console.log(sizeStyle.value);
   height: 500px;
   width: 500px;
 
-  img {
+  .image-wrap {
     position: absolute;
+    display: inline-flex;
+    max-width: 100%;
+    max-height: 100%;
   }
   .crop {
-    position: absolute;
+    // position: absolute;
     border-style: var(--n-cropper-border-style);
     border-width: var(--n-cropper-border-width);
     border-color: var(--n-cropper-border);

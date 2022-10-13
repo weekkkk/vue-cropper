@@ -1,34 +1,90 @@
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, Ref } from "vue";
 /**
  * Отслеживание курсора
  */
-export function useMouse() {
+export function useDrag( $element: Ref<HTMLElement | undefined> ) {
   /**
    * Горизонталь
    */
-  const x = ref( 0 );
+  const sx = ref( 0 );
   /**
    * Вертикаль
    */
+  const sy = ref( 0 );
+  /**
+   * Изменение по горизонтали
+   */
+  const x = ref( 0 );
+  /**
+   * Изменение по вертикали
+   */
   const y = ref( 0 );
   /**
-   * Обновление значений
-   * @param event
+   * Происходит ли перетаскивание
    */
-  function update( event: MouseEvent ) {
-    x.value = event.pageX;
-    y.value = event.pageY;
+  const isDrag = ref( false );
+  /**
+   * Начало перетаскивания
+   */
+  function start( event: MouseEvent | TouchEvent ) {
+    if ( isDrag.value ) return;
+    event.preventDefault();
+    isDrag.value = !isDrag.value;
+    let data: MouseEvent | Touch;
+    if ( event instanceof TouchEvent ) data = event.changedTouches[ 0 ];
+    else data = event as MouseEvent;
+    sx.value = data.pageX;
+    sy.value = data.pageY;
+  }
+  /**
+   * Перетаскивание
+   */
+  function drag( event: MouseEvent | TouchEvent ) {
+    if ( !isDrag.value ) return;
+    let data: MouseEvent | Touch;
+    if ( event instanceof TouchEvent ) data = event.changedTouches[ 0 ];
+    else data = event as MouseEvent;
+    x.value += data.pageX - sx.value;
+    y.value += data.pageY - sy.value;
+    sx.value = data.pageX;
+    sy.value = data.pageY;
+  }
+  /**
+   * Конец перетаскивания
+   */
+  function stop() {
+    if ( !isDrag.value ) return;
+    isDrag.value = !isDrag.value;
+  }
+  /**
+   * Установить x
+   */
+  function setX( value: number ) {
+    x.value = value;
+  }
+  /**
+   * Установить y
+   */
+  function setY( value: number ) {
+    y.value = value;
   }
   /**
    * При загрузке компонента
    */
-  onMounted( () => window.addEventListener( "mousemove", update ) );
+  onMounted( () => {
+    if ( !$element.value ) return;
+    $element.value.addEventListener( "mousedown", start );
+    window.addEventListener( "mousemove", drag );
+    window.addEventListener( "mouseup", stop );
+  } );
   /**
    * При разрушении компонента
    */
-  onUnmounted( () => window.addEventListener( "mousemove", update ) );
-  /**
-   * Вернуть позицию курсора
-   */
-  return { x, y }
+  onUnmounted( () => {
+    if ( !$element.value ) return;
+    $element.value.addEventListener( "mousedown", start );
+    window.addEventListener( "mousemove", drag );
+    window.addEventListener( "mouseup", stop );
+  } );
+  return { x, y, setX, setY, isDrag };
 }

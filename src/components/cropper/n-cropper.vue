@@ -1,114 +1,113 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
 import { useDrag } from "@/composables/drag";
-
+import { reactive, ref, computed, onMounted } from "vue";
+const props = defineProps({
+  /**
+   * Мин ширина
+   */
+  minW: { type: Number, default: 100 },
+  /**
+   * Мин высота
+   */
+  minH: { type: Number, default: 100 },
+  /**
+   * Отношение сторон
+   */
+  aspect: { type: Number, default: 16 / 9 },
+});
+/**
+ * Элемент
+ */
 const $el = ref<HTMLElement>();
-const $image = ref<HTMLElement>();
-const imageDrag = useDrag($image);
-const imageStyle = computed(() => {
-  if (!$el.value || !$crop.value) return;
-  const { left, top } = checkImage();
-  if (!imageDrag.isDrag.value) {
-    imageDrag.setX(left);
-    imageDrag.setY(top);
-  }
-  return {
-    left: `${left}px`,
-    top: `${top}px`,
-  };
-});
-function checkImage() {
-  let left = 0;
-  let top = 0;
-  if (!$el.value || !$crop.value || !$image.value) return { left, top };
-  left = imageDrag.x.value;
-  top = imageDrag.y.value;
-  const el = $el.value.getBoundingClientRect();
-  const image = $image.value.getBoundingClientRect();
-  const crop = $crop.value.getBoundingClientRect();
-  let minL =
-    image.width < el.width ? $crop.value.offsetLeft + crop.width - image.width : 0;
-  let maxL = image.width < el.width ? $crop.value.offsetLeft : 0;
-  if (minL < 0) minL = 0;
-  if (maxL > el.width - image.width) maxL = el.width - image.width;
-
-  let minT =
-    image.height < el.height ? $crop.value.offsetTop + crop.height - image.height : 0;
-  let maxT = image.height < el.height ? $crop.value.offsetTop : 0;
-  if (minT < 0) minT = 0;
-  if (maxT > el.height - image.height) maxT = el.height - image.height;
-  if (image.width < el.width) {
-    if (imageDrag.x.value < minL) left = minL;
-    if (imageDrag.x.value > maxL) left = maxL;
-  } else {
-    if (imageDrag.x.value > minL) left = minL;
-    if (imageDrag.x.value < maxL) left = maxL;
-  }
-  if (image.height < el.height) {
-    if (imageDrag.y.value < minT) top = minT;
-    if (imageDrag.y.value > maxT) top = maxT;
-  } else {
-    if (imageDrag.y.value > minT) top = minT;
-    if (imageDrag.y.value < maxT) top = maxT;
-  }
-  return { left, top };
-}
-function setDefaultImage() {
-  if (!$el.value || !$image.value) return;
-  const el = $el.value.getBoundingClientRect();
-  const image = $image.value.getBoundingClientRect();
-  imageDrag.setX(el.width / 2 - image.width / 2);
-  imageDrag.setY(el.height / 2 - image.height / 2);
-}
-onMounted(setDefaultImage);
-
+/**
+ * Кроп
+ */
 const $crop = ref<HTMLElement>();
-const cropDrag = useDrag($crop);
-const cropStyle = computed(() => {
-  if (!$el.value || !$crop.value) return {};
-  const { left, top } = checkCrop();
-  if (!cropDrag.isDrag.value) {
-    cropDrag.setX(left);
-    cropDrag.setY(top);
-  }
+const crop_drag = useDrag($crop);
+const crop_pos = computed(() => {
+  if (!$el.value) return {};
+  const w = $el.value.offsetWidth / 100;
+  const h = $el.value.offsetHeight / 100;
   return {
-    left: `${left}px`,
-    top: `${top}px`,
+    l: crop_drag.x.value / w,
+    t: crop_drag.y.value / h,
   };
 });
-function checkCrop() {
-  let left = 0;
-  let top = 0;
-  if (!$el.value || !$crop.value || !$image.value) return { left, top };
-  left = cropDrag.x.value;
-  top = cropDrag.y.value;
-  const el = $el.value.getBoundingClientRect();
-  const image = $image.value.getBoundingClientRect();
-  const crop = $crop.value.getBoundingClientRect();
-  const minL = image.width < el.width ? $image.value.offsetLeft : 0;
-  const minT = $image.value.offsetHeight < el.height ? $image.value.offsetTop : 0;
-  const maxL =
-    image.width < el.width
-      ? $image.value.offsetLeft + image.width - crop.width
-      : el.height - crop.width;
-  const maxT =
-    $image.value.offsetHeight < el.height
-      ? $image.value.offsetTop + $image.value.offsetHeight - crop.height
-      : el.height - crop.height;
-  if (cropDrag.x.value < minL) left = minL;
-  if (cropDrag.y.value < minT) top = minT;
-  if (cropDrag.x.value > maxL) left = maxL;
-  if (cropDrag.y.value > maxT) top = maxT;
-  return { left, top };
-}
-function setDefaultCrop() {
-  if (!$el.value || !$crop.value) return;
-  const el = $el.value.getBoundingClientRect();
-  const crop = $crop.value.getBoundingClientRect();
-  cropDrag.setX(el.width / 2 - crop.width / 2);
-  cropDrag.setY(el.height / 2 - crop.height / 2);
-}
-onMounted(setDefaultCrop);
+const crop_size = reactive({
+  w: 50,
+  h: 50,
+});
+const crop = computed(() => {
+  return {
+    left: `${crop_pos.value.l}%`,
+    top: `${crop_pos.value.t}%`,
+    width: `${crop_size.w}%`,
+    height: `${crop_size.h}%`,
+  };
+});
+const setDefaultCropSize = () => {
+  if (!$el.value) return;
+  const w = $el.value.offsetWidth / 100;
+  const h = $el.value.offsetHeight / 100;
+  crop_size.w = 50;
+  crop_size.h = 50;
+  if (props.aspect) crop_size.h = (w * 50) / props.aspect / h;
+};
+onMounted(setDefaultCropSize);
+const setDefaultCropPos = () => {
+  if (!$el.value) return;
+  const w = $el.value.offsetWidth / 100;
+  const h = $el.value.offsetHeight / 100;
+  const x = w * 50 - (crop_size.w * w) / 2;
+  const y = h * 50 - (crop_size.h * h) / 2;
+  crop_drag.setY(y);
+  crop_drag.setX(x);
+};
+onMounted(setDefaultCropPos);
+/**
+ * Фото
+ */
+const $img = ref<HTMLImageElement>();
+const img_drag = useDrag($img);
+const img_pos = computed(() => {
+  if (!$el.value) return {};
+  const w = $el.value.offsetWidth / 100;
+  const h = $el.value.offsetHeight / 100;
+  return {
+    l: img_drag.x.value / w,
+    t: img_drag.y.value / h,
+  };
+});
+const img_size = reactive({
+  w: 0,
+  h: 0,
+});
+const img = computed(() => {
+  return {
+    left: `${img_pos.value.l}%`,
+    top: `${img_pos.value.t}%`,
+    width: img_size.w ? `${img_size.w}%` : "auto",
+    height: img_size.h ? `${img_size.h}%` : "auto",
+  };
+});
+const setDefaultImgSize = () => {
+  if (!$img.value) return;
+  const k_img = $img.value.naturalWidth / $img.value.naturalHeight;
+  if (k_img > 1) img_size.w = 100;
+  else img_size.h = 100;
+};
+onMounted(setDefaultImgSize);
+const setDefaultImgPos = () => {
+  if (!$img.value || !$el.value) return;
+  const k_img = $img.value.naturalWidth / $img.value.naturalHeight;
+  let y = 0;
+  let x = 0;
+  if (img_size.h) x = $el.value.offsetWidth / 2 - ($el.value.offsetHeight * k_img) / 2;
+  if (img_size.w) y = $el.value.offsetHeight / 2 - $el.value.offsetWidth / k_img / 2;
+  img_drag.setY(y);
+  img_drag.setX(x);
+};
+onMounted(setDefaultImgPos);
 </script>
 
 <template>
@@ -116,12 +115,13 @@ onMounted(setDefaultCrop);
   <button>-</button>
   <div class="n-cropper" ref="$el">
     <img
-      :style="imageStyle"
-      ref="$image"
+      ref="$img"
+      :style="img"
       alt="SRC Image"
-      src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png"
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbrvOZf5zaHg_9a8upGltfVtObFu_0QH1rcw&usqp=CAU"
     />
-    <div class="crop" ref="$crop" :style="cropStyle">
+    <!-- src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png" -->
+    <div class="crop" ref="$crop" :style="crop">
       <i class="left top" ref="$lt"></i>
       <i class="center top"></i>
       <i class="right top"></i>
@@ -136,22 +136,19 @@ onMounted(setDefaultCrop);
 
 <style lang="scss" scoped>
 .n-cropper {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  position: relative;
   overflow: hidden;
   background-image: url(./assets/image/bg.png);
 
   height: 500px;
-  width: 500px;
+  width: 400px;
 
   img {
     position: absolute;
     display: inline-flex;
-    max-width: 100%;
-    max-height: 100%;
-    // width: 150%;
   }
   .crop {
     position: absolute;

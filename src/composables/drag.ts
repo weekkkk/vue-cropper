@@ -2,36 +2,36 @@ import { ref, onMounted, onUnmounted, Ref } from "vue";
 /**
  * Отслеживание курсора
  */
-export function useDrag( $element: Ref<HTMLElement | undefined> ) {
+export function useDrag($element: Ref<HTMLElement | undefined>) {
   /**
    * Горизонталь
    */
-  const sx = ref( 0 );
+  const sx = ref(0);
   /**
    * Вертикаль
    */
-  const sy = ref( 0 );
+  const sy = ref(0);
   /**
    * Изменение по горизонтали
    */
-  const x = ref( 0 );
+  const x = ref(0);
   /**
    * Изменение по вертикали
    */
-  const y = ref( 0 );
+  const y = ref(0);
   /**
    * Происходит ли перетаскивание
    */
-  const isDrag = ref( false );
+  const isDrag = ref(false);
   /**
    * Начало перетаскивания
    */
-  function start( event: MouseEvent | TouchEvent ) {
-    if ( isDrag.value ) return;
+  function start(event: MouseEvent | TouchEvent) {
+    if (isDrag.value) return;
     event.preventDefault();
     isDrag.value = !isDrag.value;
     let data: MouseEvent | Touch;
-    if ( event instanceof TouchEvent ) data = event.changedTouches[ 0 ];
+    if (event instanceof TouchEvent) data = event.changedTouches[0];
     else data = event as MouseEvent;
     sx.value = data.pageX;
     sy.value = data.pageY;
@@ -39,10 +39,10 @@ export function useDrag( $element: Ref<HTMLElement | undefined> ) {
   /**
    * Перетаскивание
    */
-  function drag( event: MouseEvent | TouchEvent ) {
-    if ( !isDrag.value ) return;
+  function drag(event: MouseEvent | TouchEvent) {
+    if (!isDrag.value) return;
     let data: MouseEvent | Touch;
-    if ( event instanceof TouchEvent ) data = event.changedTouches[ 0 ];
+    if (event instanceof TouchEvent) data = event.changedTouches[0];
     else data = event as MouseEvent;
     x.value += data.pageX - sx.value;
     y.value += data.pageY - sy.value;
@@ -53,38 +53,38 @@ export function useDrag( $element: Ref<HTMLElement | undefined> ) {
    * Конец перетаскивания
    */
   function stop() {
-    if ( !isDrag.value ) return;
+    if (!isDrag.value) return;
     isDrag.value = !isDrag.value;
   }
   /**
    * Установить x
    */
-  function setX( value: number ) {
+  function setX(value: number) {
     x.value = value;
   }
   /**
    * Установить y
    */
-  function setY( value: number ) {
+  function setY(value: number) {
     y.value = value;
   }
   /**
    * При загрузке компонента
    */
-  onMounted( () => {
-    if ( !$element.value ) return;
-    $element.value.addEventListener( "mousedown", start );
-    window.addEventListener( "mousemove", drag );
-    window.addEventListener( "mouseup", stop );
-  } );
+  onMounted(() => {
+    if (!$element.value) return;
+    $element.value.addEventListener("mousedown", start);
+    window.addEventListener("mousemove", drag);
+    window.addEventListener("mouseup", stop);
+  });
   /**
    * При разрушении компонента
    */
-  onUnmounted( () => {
-    if ( !$element.value ) return;
-    $element.value.addEventListener( "mousedown", start );
-    window.addEventListener( "mousemove", drag );
-    window.addEventListener( "mouseup", stop );
-  } );
+  onUnmounted(() => {
+    if (!$element.value) return;
+    $element.value.addEventListener("mousedown", start);
+    window.addEventListener("mousemove", drag);
+    window.addEventListener("mouseup", stop);
+  });
   return { x, y, setX, setY, isDrag };
 }

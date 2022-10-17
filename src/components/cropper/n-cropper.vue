@@ -1,127 +1,110 @@
 <script setup lang="ts">
 import { useDrag } from "@/composables/drag";
-import { reactive, ref, computed, onMounted } from "vue";
+import { reactive, ref, computed, onMounted, watch } from "vue";
 const props = defineProps({
-  /**
-   * Мин ширина
-   */
-  minW: { type: Number, default: 100 },
-  /**
-   * Мин высота
-   */
-  minH: { type: Number, default: 100 },
-  /**
-   * Отношение сторон
-   */
   aspect: { type: Number, default: 16 / 9 },
 });
-/**
- * Элемент
- */
+
 const $el = ref<HTMLElement>();
-/**
- * Кроп
- */
+const $img = ref<HTMLImageElement>();
 const $crop = ref<HTMLElement>();
+const w = computed(() => ($el.value?.offsetWidth || 0) / 100);
+const h = computed(() => ($el.value?.offsetHeight || 0) / 100);
+
 const crop_drag = useDrag($crop);
 const crop_pos = computed(() => {
-  if (!$el.value) return {};
-  const w = $el.value.offsetWidth / 100;
-  const h = $el.value.offsetHeight / 100;
   return {
-    l: crop_drag.x.value / w,
-    t: crop_drag.y.value / h,
+    l: crop_drag.x.value,
+    t: crop_drag.y.value,
   };
 });
 const crop_size = reactive({
-  w: 50,
-  h: 50,
+  w: 0,
+  h: 0,
 });
-const crop = computed(() => {
-  return {
-    left: `${crop_pos.value.l}%`,
-    top: `${crop_pos.value.t}%`,
-    width: `${crop_size.w}%`,
-    height: `${crop_size.h}%`,
-  };
-});
-const setDefaultCropSize = () => {
-  if (!$el.value) return;
-  const w = $el.value.offsetWidth / 100;
-  const h = $el.value.offsetHeight / 100;
-  crop_size.w = 50;
-  crop_size.h = 50;
-  if (props.aspect) crop_size.h = (w * 50) / props.aspect / h;
+
+const set_crop_size = (k: number) => {
+  if (!$img.value) return;
+  if (props.aspect < 1) {
+    crop_size.h = h.value * (100 * k);
+    crop_size.w = crop_size.h * props.aspect;
+  } else {
+    crop_size.w = w.value * (100 * k);
+    crop_size.h = crop_size.w / props.aspect;
+  }
 };
-onMounted(setDefaultCropSize);
-const setDefaultCropPos = () => {
-  if (!$el.value) return;
-  const w = $el.value.offsetWidth / 100;
-  const h = $el.value.offsetHeight / 100;
-  const x = w * 50 - (crop_size.w * w) / 2;
-  const y = h * 50 - (crop_size.h * h) / 2;
-  crop_drag.setY(y);
-  crop_drag.setX(x);
-};
-onMounted(setDefaultCropPos);
-/**
- * Фото
- */
-const $img = ref<HTMLImageElement>();
+
 const img_drag = useDrag($img);
-const img_pos = computed(() => {
-  if (!$el.value) return {};
-  const w = $el.value.offsetWidth / 100;
-  const h = $el.value.offsetHeight / 100;
-  return {
-    l: img_drag.x.value / w,
-    t: img_drag.y.value / h,
-  };
-});
 const img_size = reactive({
   w: 0,
   h: 0,
 });
-const img = computed(() => {
+const img_pos = computed(() => {
   return {
-    left: `${img_pos.value.l}%`,
-    top: `${img_pos.value.t}%`,
-    width: img_size.w ? `${img_size.w}%` : "auto",
-    height: img_size.h ? `${img_size.h}%` : "auto",
+    l: img_drag.x.value,
+    t: img_drag.y.value,
   };
 });
-const setDefaultImgSize = () => {
+const set_img_size = (k: number) => {
   if (!$img.value) return;
-  const k_img = $img.value.naturalWidth / $img.value.naturalHeight;
-  if (k_img > 1) img_size.w = 100;
-  else img_size.h = 100;
+  const aspect = $img.value.naturalWidth / $img.value.naturalHeight;
+  if (aspect < 1) {
+    img_size.h = h.value * (100 * k);
+    img_size.w = img_size.h * aspect;
+  } else {
+    img_size.w = w.value * (100 * k);
+    img_size.h = img_size.w / aspect;
+  }
 };
-onMounted(setDefaultImgSize);
-const setDefaultImgPos = () => {
-  if (!$img.value || !$el.value) return;
-  const k_img = $img.value.naturalWidth / $img.value.naturalHeight;
-  let y = 0;
-  let x = 0;
-  if (img_size.h) x = $el.value.offsetWidth / 2 - ($el.value.offsetHeight * k_img) / 2;
-  if (img_size.w) y = $el.value.offsetHeight / 2 - $el.value.offsetWidth / k_img / 2;
-  img_drag.setY(y);
-  img_drag.setX(x);
+
+const get_pos_style = (settings: { l: number; t: number }) => {
+  return {
+    left: `${settings.l / w.value}%`,
+    top: `${settings.t / h.value}%`,
+  };
 };
-onMounted(setDefaultImgPos);
+const get_size_style = (settings: { w: number; h: number }) => {
+  return {
+    width: `${settings.w / w.value}%`,
+    height: `${settings.h / h.value}%`,
+  };
+};
+const get_default_pos = (size: { w: number; h: number }) => {
+  const l = w.value * 50 - size.w / 2;
+  const t = h.value * 50 - size.h / 2;
+  return { l, t };
+};
+onMounted(() => {
+  console.log("w", w.value);
+
+  set_img_size(1);
+  set_crop_size(0.5);
+  const local_img_pos = get_default_pos(img_size);
+  img_drag.setX(local_img_pos.l);
+  img_drag.setY(local_img_pos.t);
+  const local_crop_pos = get_default_pos(crop_size);
+  crop_drag.setX(local_crop_pos.l);
+  crop_drag.setY(local_crop_pos.t);
+});
 </script>
 
 <template>
   <button>+</button>
   <button>-</button>
+  <!-- {{ x }}:{{ y }} -->
   <div class="n-cropper" ref="$el">
     <img
       ref="$img"
-      :style="img"
       alt="SRC Image"
-      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbrvOZf5zaHg_9a8upGltfVtObFu_0QH1rcw&usqp=CAU"
+      :style="[get_size_style(img_size), get_pos_style(img_pos)]"
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png"
     />
-    <!-- src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png" -->
-    <div class="crop" ref="$crop" :style="crop">
+    <!-- src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbrvOZf5zaHg_9a8upGltfVtObFu_0QH1rcw&usqp=CAU" -->
+    <div
+      class="crop"
+      ref="$crop"
+      :style="[get_size_style(crop_size), get_pos_style(crop_pos)]"
+    >
       <i class="left top" ref="$lt"></i>
       <i class="center top"></i>
       <i class="right top"></i>

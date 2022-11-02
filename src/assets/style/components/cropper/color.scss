@@ -1,6 +1,8 @@
 :root {
   // Обводка обертки
   --n-cropper-border: var(--n-border);
+  // Обводка активной обертки
+  --n-cropper-active-border: var(--n-main);
   // Обводка точки
   --n-cropper-point-border: var(--n-border);
   // Обводка активной точки
@@ -10,5 +12,5 @@
   // Задний фон точки
   --n-cropper-point-background: var(--n-border);
   // Задний фон активной точки
-  --n-cropper-point-avtive-background: var(--n-main);
+  --n-cropper-point-active-background: var(--n-main);
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useDrag } from "@/composables/drag";
+import { useDrag } from "@/components/cropper/composables/drager/composables/drag";
 const $el = ref<HTMLElement>();
 const { x, y } = useDrag($el);
 const style = computed(() => {

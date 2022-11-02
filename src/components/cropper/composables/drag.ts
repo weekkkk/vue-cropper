@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, Ref, watch } from "vue";
+import { ref, onMounted, onUnmounted, Ref } from "vue";
 /**
  * Отслеживание курсора
  */
@@ -28,11 +28,13 @@ export function useDrag($element: Ref<HTMLElement | undefined>, isPaused?: Ref<b
    */
   function start(event: MouseEvent | TouchEvent) {
     if (isDrag.value || (isPaused && isPaused.value)) return;
-    event.preventDefault();
     isDrag.value = !isDrag.value;
     let data: MouseEvent | Touch;
     if (event instanceof TouchEvent) data = event.changedTouches[0];
-    else data = event as MouseEvent;
+    else {
+      event.preventDefault();
+      data = event as MouseEvent;
+    }
     sx.value = data.pageX;
     sy.value = data.pageY;
   }
@@ -73,18 +75,24 @@ export function useDrag($element: Ref<HTMLElement | undefined>, isPaused?: Ref<b
    */
   onMounted(() => {
     window.addEventListener("mousemove", drag);
+    window.addEventListener("touchmove", drag);
     window.addEventListener("mouseup", stop);
+    window.addEventListener("touchend", stop);
     if (!$element.value) return;
     $element.value.addEventListener("mousedown", start);
+    $element.value.addEventListener("touchstart", start, { passive: true });
   });
   /**
    * При разрушении компонента
    */
   onUnmounted(() => {
     window.removeEventListener("mousemove", drag);
+    window.removeEventListener("touchmove", drag);
     window.removeEventListener("mouseup", stop);
+    window.removeEventListener("touchend", stop);
     if (!$element.value) return;
     $element.value.removeEventListener("mousedown", start);
+    $element.value.removeEventListener("touchstart", start);
   });
   return { x, y, setX, setY, isDrag, start };
 }

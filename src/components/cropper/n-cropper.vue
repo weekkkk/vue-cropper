@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import { useDrag } from "@/composables/drag";
+import { useDrag } from "./composables/drag";
 import { reactive, ref, computed, onMounted, watch } from "vue";
+
 const props = defineProps({
+  /**
+   * Отношение сторон кропа
+   */
   aspect: { type: Number, default: 1 },
-  dk: { type: Number, default: 0.4 },
+  /**
+   * 
+   */
+  zdk: { type: Number, default: 0.4 },
 });
 
 const start_resize_pos = reactive({ l: 0, t: 0 });
@@ -78,8 +85,7 @@ watch(p_pos, () => {
     if (get_is_drag_p("left", "")) {
       lw = start_resize_size.w - p_drag.x.value;
       l = crop_pos.value.l - (lw - crop_size.w);
-    }
-    if (get_is_drag_p("right", "")) {
+    } else if (get_is_drag_p("right", "")) {
       lw = start_resize_size.w + p_drag.x.value;
     }
     lh = lw / props.aspect;
@@ -122,7 +128,7 @@ watch(p_pos, () => {
   }
 });
 
-const set_p = (e: MouseEvent) => {
+const set_p = (e: MouseEvent | TouchEvent) => {
   $p.value = e.target as HTMLElement;
   if (!$p.value) return;
   p_drag.start(e);
@@ -141,15 +147,23 @@ const h = computed(() => ($el.value?.offsetHeight || 0) / 100);
 
 const get_pos_style = (settings: { l: number; t: number }) => {
   return {
-    left: `${settings.l / w.value}%`,
-    top: `${settings.t / h.value}%`,
+    left: `${settings.l}px`,
+    top: `${settings.t}px`,
   };
+  // return {
+  //   left: `${settings.l / w.value}%`,
+  //   top: `${settings.t / h.value}%`,
+  // };
 };
 const get_size_style = (settings: { w: number; h: number }) => {
   return {
-    width: `${settings.w / w.value}%`,
-    height: `${settings.h / h.value}%`,
+    width: `${settings.w}px`,
+    height: `${settings.h}px`,
   };
+  // return {
+  //   width: `${settings.w / w.value}%`,
+  //   height: `${settings.h / h.value}%`,
+  // };
 };
 
 const crop_drag = useDrag($crop, p_drag.isDrag);
@@ -190,6 +204,11 @@ const crop_pos = computed(() => {
 const img_pos = computed(() => {
   let x = img_drag.x.value;
   let y = img_drag.y.value;
+  if (ignore.value)
+    return {
+      l: x,
+      t: y,
+    };
   if (img_size.w < w.value * 100) {
     if (x < img_min.value.l) x = img_min.value.l;
     else if (x + img_size.w > img_max.value.l) x = img_max.value.l - img_size.w;
@@ -248,18 +267,19 @@ const img_max = computed(() => {
 
 const set_crop_size = (k: number) => {
   if (props.aspect < 1) {
-    crop_size.h = h.value * (100 * k);
+    crop_size.h = img_size.h * k;
     crop_size.w = crop_size.h * props.aspect;
   } else {
-    crop_size.w = w.value * (100 * k);
+    crop_size.w = img_size.w * k;
     crop_size.h = crop_size.w / props.aspect;
   }
   return crop_size;
 };
 const set_img_size = (k: number) => {
-  if (!$img.value) return img_size;
+  if (!$img.value || !$el.value) return img_size;
+  const el_aspect = $el.value.offsetWidth / $el.value.offsetHeight;
   const aspect = $img.value.naturalWidth / $img.value.naturalHeight;
-  if (aspect < 1) {
+  if (aspect < 1 || el_aspect > 1) {
     img_size.h = h.value * (100 * k);
     img_size.w = img_size.h * aspect;
   } else {
@@ -277,8 +297,8 @@ const zoom = (z: "+" | "-") => {
   const kt = t / img_size.h;
   const old_size = Object.assign({}, img_size);
   const old_pos = Object.assign({}, img_pos.value);
-  if (z == "+") img_size_k.value += props.dk;
-  else img_size_k.value -= props.dk;
+  if (z == "+") img_size_k.value += props.zdk;
+  else img_size_k.value -= props.zdk;
   if (img_size_k.value < 1) {
     img_size_k.value = 1;
   }
@@ -304,7 +324,10 @@ const get_default_pos = (size: { w: number; h: number }) => {
   return { l, t };
 };
 
-onMounted(() => {
+const ignore = ref(false);
+
+const set_default = () => {
+  ignore.value = true;
   set_img_size(img_size_k.value);
   set_crop_size(0.5);
   const local_img_pos = get_default_pos(img_size);
@@ -313,14 +336,20 @@ onMounted(() => {
   const local_crop_pos = get_default_pos(crop_size);
   crop_drag.setX(local_crop_pos.l);
   crop_drag.setY(local_crop_pos.t);
-});
+  setTimeout(() => {
+    ignore.value = false;
+  });
+};
+
+onMounted(set_default);
 </script>
 
 <template>
-  <button @click="zoom('+')">+</button>
-  <button @click="zoom('-')">-</button>
-  {{ p_drag }}
   <div class="n-cropper" ref="$el">
+    <span class="zoom">
+      <span @click="zoom('+')">+</span>
+      <span @click="zoom('-')">-</span>
+    </span>
     <img
       :class="{ 'is-drag': img_drag.isDrag.value }"
       ref="$img"
@@ -328,7 +357,6 @@ onMounted(() => {
       :style="[get_size_style(img_size), get_pos_style(img_pos)]"
       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbrvOZf5zaHg_9a8upGltfVtObFu_0QH1rcw&usqp=CAU"
     />
-    <!-- src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png" -->
     <div
       :class="{ 'is-drag': crop_drag.isDrag.value || p_drag.isDrag.value }"
       class="crop"
@@ -340,41 +368,49 @@ onMounted(() => {
         class="left top"
         ref="$lt"
         @mousedown="set_p"
+        @touchstart.passive="set_p"
       />
       <i
         :class="{ 'is-drag': get_is_drag_p('center', 'top') }"
         class="center top"
         @mousedown="set_p"
+        @touchstart.passive="set_p"
       />
       <i
         :class="{ 'is-drag': get_is_drag_p('right', 'top') }"
         class="right top"
         @mousedown="set_p"
+        @touchstart.passive="set_p"
       />
       <i
         :class="{ 'is-drag': get_is_drag_p('left', 'middle') }"
         class="left middle"
         @mousedown="set_p"
+        @touchstart.passive="set_p"
       />
       <i
         :class="{ 'is-drag': get_is_drag_p('right', 'middle') }"
         class="right middle"
         @mousedown="set_p"
+        @touchstart.passive="set_p"
       />
       <i
         :class="{ 'is-drag': get_is_drag_p('left', 'bottom') }"
         class="left bottom"
         @mousedown="set_p"
+        @touchstart.passive="set_p"
       />
       <i
         :class="{ 'is-drag': get_is_drag_p('center', 'bottom') }"
         class="center bottom"
         @mousedown="set_p"
+        @touchstart.passive="set_p"
       />
       <i
         :class="{ 'is-drag': get_is_drag_p('right', 'bottom') }"
         class="right bottom"
         @mousedown="set_p"
+        @touchstart.passive="set_p"
       />
       <span></span>
     </div>
@@ -389,9 +425,47 @@ onMounted(() => {
   justify-content: center;
   overflow: hidden;
   background-image: url(./assets/image/bg.png);
-
+  user-select: none;
   height: 500px;
-  width: 400px;
+  width: 100%;
+  .zoom {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 100;
+    > span {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition-duration: var(--n-cropper-transition-duration);
+      transition-timing-function: var(--n-cropper-transition-timing-function);
+      font-size: var(--n-cropper-point-size);
+      line-height: var(--n-cropper-point-size);
+      width: var(--n-cropper-point-size);
+      height: var(--n-cropper-point-size);
+      color: var(--n-cropper-point-border);
+      &:hover {
+        font-size: var(--n-cropper-point-hover-size);
+        line-height: var(--n-cropper-point-hover-size);
+        width: var(--n-cropper-point-hover-size);
+        height: var(--n-cropper-point-hover-size);
+        height: var(--n-cropper-point-hover-size);
+        color: var(--n-cropper-point-hover-border);
+      }
+      &.is-drag {
+        font-size: var(--n-cropper-point-hover-size);
+        line-height: var(--n-cropper-point-hover-size);
+        width: var(--n-cropper-point-active-size);
+        height: var(--n-cropper-point-active-size);
+        height: var(--n-cropper-point-active-size);
+        color: var(--n-cropper-point-active-border);
+      }
+    }
+  }
 
   img {
     position: absolute;
@@ -405,12 +479,12 @@ onMounted(() => {
     border-style: var(--n-cropper-border-style);
     border-width: var(--n-cropper-border-width);
     border-color: var(--n-cropper-border);
-
+    transition-duration: var(--n-cropper-transition-duration);
+    transition-timing-function: var(--n-cropper-transition-timing-function);
+    transition-property: border;
     box-shadow: 0 0 0 10000px rgba(0, 0, 0, var(--n-cropper-opacity));
-
-    width: 200px;
-    height: 100px;
     &.is-drag {
+      border-color: var(--n-cropper-active-border);
       border-style: var(--n-cropper-active-border-style);
     }
     > span {
@@ -471,7 +545,7 @@ onMounted(() => {
           border-radius: var(--n-cropper-point-active-radius);
         }
         &::before {
-          background: var(--n-cropper-point-avtive-background);
+          background: var(--n-cropper-point-active-background);
           opacity: var(--n-cropper-point-active-opacity);
         }
         &::after {

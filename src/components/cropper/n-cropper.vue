@@ -4,20 +4,46 @@ import { reactive, ref, computed, onMounted, watch } from "vue";
 
 const props = defineProps({
   /**
+   * Значение
+   */
+  modelValue: { type: String, default: "" },
+  /**
    * Отношение сторон кропа
    */
-  aspect: { type: Number, default: 1 },
+  aspect: { type: Number, default: 16 / 9 },
   /**
-   * 
+   * Размер изменения коэффициента зума
    */
   zdk: { type: Number, default: 0.4 },
+  /**
+   * Фото
+   */
+  src: { type: String, default: "" },
+  /**
+   * Мин размер
+   */
+  minSize: { type: Number, default: 100 },
 });
-
+/**
+ * Начальная позация при ресайзе
+ */
 const start_resize_pos = reactive({ l: 0, t: 0 });
+/**
+ * Начальный размер при ресайзе
+ */
 const start_resize_size = reactive({ w: 0, h: 0 });
+/**
+ * Активная точка кропа
+ */
 const $p = ref<HTMLElement>();
+/**
+ * Перетаскивание активной точки
+ */
 const p_drag = useDrag($p);
-watch(p_drag.isDrag, () => {
+/**
+ * Слежение за тем началось ли перетаскивание точки
+ */
+watch(p_drag.isDrag, (): void => {
   if (p_drag.isDrag.value) {
     start_resize_pos.l = crop_pos.value.l;
     start_resize_pos.t = crop_pos.value.t;
@@ -31,11 +57,18 @@ watch(p_drag.isDrag, () => {
     p_drag.setX(0);
     p_drag.setY(0);
     $p.value = undefined;
+    setCrop();
   }
 });
-const p_pos = computed(() => {
+/**
+ * Позация точки
+ */
+const p_pos = computed((): { l: number; t: number } => {
   return { l: p_drag.x.value, t: p_drag.y.value };
 });
+/**
+ * Слежение за позицией точки
+ */
 watch(p_pos, () => {
   if (!p_drag.isDrag.value || !$p.value) return;
   let lw = 0,
@@ -121,31 +154,68 @@ watch(p_pos, () => {
     if (l + lw > crop_max.value.l) l = crop_max.value.l - lw;
     if (t < crop_min.value.t) t = crop_min.value.t;
     if (t + lh > crop_max.value.t) t = crop_max.value.t - lh;
+
+    if (lw < crop_min_size.value.w || lh < crop_min_size.value.h) return;
     crop_drag.setX(l);
     crop_drag.setY(t);
     crop_size.w = lw;
     crop_size.h = lh;
   }
 });
-
-const set_p = (e: MouseEvent | TouchEvent) => {
+/**
+ * Установка точки
+ * @param e
+ */
+const set_p = (e: MouseEvent | TouchEvent): void => {
+  if (ignore.value) return;
   $p.value = e.target as HTMLElement;
   if (!$p.value) return;
   p_drag.start(e);
 };
-const get_is_drag_p = (h: string, v: string) => {
-  return (
-    (!h || $p.value?.classList.contains(h)) && (!v || $p.value?.classList.contains(v))
+/**
+ * Возвращает true если точка с данными классам перетаскиваниется
+ * h - класс по горизонтали left, center, right
+ * v - класс по вертикали top, middle, bottom
+ * @param h
+ * @param v
+ */
+const get_is_drag_p = (
+  h: "left" | "center" | "right" | "",
+  v: "top" | "middle" | "bottom" | ""
+): boolean => {
+  return !!(
+    (!h || $p.value?.classList.contains(h)) &&
+    (!v || $p.value?.classList.contains(v))
   );
 };
-
+/**
+ * Элемент обертки
+ */
 const $el = ref<HTMLElement>();
+/**
+ * Фото
+ */
 const $img = ref<HTMLImageElement>();
+/**
+ * Кроп
+ */
 const $crop = ref<HTMLElement>();
+/**
+ * 1% от ширины обертки
+ */
 const w = computed(() => ($el.value?.offsetWidth || 0) / 100);
+/**
+ * 1% от высоты обертки
+ */
 const h = computed(() => ($el.value?.offsetHeight || 0) / 100);
-
-const get_pos_style = (settings: { l: number; t: number }) => {
+/**
+ * Возвращает стили позиции
+ * @param settings
+ */
+const get_pos_style = (settings: {
+  l: number;
+  t: number;
+}): { left: string; top: string } => {
   return {
     left: `${settings.l}px`,
     top: `${settings.t}px`,
@@ -155,7 +225,14 @@ const get_pos_style = (settings: { l: number; t: number }) => {
   //   top: `${settings.t / h.value}%`,
   // };
 };
-const get_size_style = (settings: { w: number; h: number }) => {
+/**
+ * Возвращает стили размера
+ * @param settings
+ */
+const get_size_style = (settings: {
+  w: number;
+  h: number;
+}): { width: string; height: string } => {
   return {
     width: `${settings.w}px`,
     height: `${settings.h}px`,
@@ -165,33 +242,57 @@ const get_size_style = (settings: { w: number; h: number }) => {
   //   height: `${settings.h / h.value}%`,
   // };
 };
-
+/**
+ * Перетаскивание кропа
+ */
 const crop_drag = useDrag($crop, p_drag.isDrag);
+/**
+ * Перетаскивание фото
+ */
 const img_drag = useDrag($img, p_drag.isDrag);
-
+/**
+ * Слежение за тем перетаскивается ли кроп
+ */
 watch(crop_drag.isDrag, () => {
   if (crop_drag.isDrag.value) return;
   crop_drag.setX(crop_pos.value.l);
   crop_drag.setY(crop_pos.value.t);
+  setCrop();
 });
+/**
+ * Слежение за тем перетаскивается ли фото
+ */
 watch(img_drag.isDrag, () => {
   if (img_drag.isDrag.value) return;
   img_drag.setX(img_pos.value.l);
   img_drag.setY(img_pos.value.t);
+  setCrop();
 });
-
+/**
+ * Размер кропа
+ */
 const crop_size = reactive({
   w: 0,
   h: 0,
 });
+/**
+ * Размер фото
+ */
 const img_size = reactive({
   w: 0,
   h: 0,
 });
-
-const crop_pos = computed(() => {
+/**
+ * Позиция кропа
+ */
+const crop_pos = computed((): { l: number; t: number } => {
   let x = crop_drag.x.value;
   let y = crop_drag.y.value;
+  if (ignore.value)
+    return {
+      l: x,
+      t: y,
+    };
   if (x < crop_min.value.l) x = crop_min.value.l;
   if (y < crop_min.value.t) y = crop_min.value.t;
   if (x + crop_size.w > crop_max.value.l) x = crop_max.value.l - crop_size.w;
@@ -201,7 +302,10 @@ const crop_pos = computed(() => {
     t: y,
   };
 });
-const img_pos = computed(() => {
+/**
+ * Позиция фото
+ */
+const img_pos = computed((): { l: number; t: number } => {
   let x = img_drag.x.value;
   let y = img_drag.y.value;
   if (ignore.value)
@@ -228,8 +332,10 @@ const img_pos = computed(() => {
     t: y,
   };
 });
-
-const crop_min = computed(() => {
+/**
+ * Минимальная позиция кропа
+ */
+const crop_min = computed((): { l: number; t: number } => {
   let l = 0;
   let t = 0;
   if (!img_pos.value) return { l, t };
@@ -237,6 +343,9 @@ const crop_min = computed(() => {
   if (img_pos.value.t > 0) t = img_pos.value.t;
   return { l, t };
 });
+/**
+ * Минимальная позиция фото
+ */
 const img_min = computed(() => {
   let l = 0;
   let t = 0;
@@ -247,8 +356,10 @@ const img_min = computed(() => {
     t = crop_pos.value.t + crop_size.h - img_size.h;
   return { l, t };
 });
-
-const crop_max = computed(() => {
+/**
+ * Максимальная позиция кропа
+ */
+const crop_max = computed((): { l: number; t: number } => {
   let l = w.value * 100;
   let t = h.value * 100;
   if (!img_pos.value) return { l, t };
@@ -256,7 +367,10 @@ const crop_max = computed(() => {
   if (img_pos.value.t + img_size.h < h.value * 100) t = img_pos.value.t + img_size.h;
   return { l, t };
 });
-const img_max = computed(() => {
+/**
+ * Максимальная позиция фото
+ */
+const img_max = computed((): { l: number; t: number } => {
   let l = w.value * 100;
   let t = h.value * 100;
   if (!crop_pos.value) return { l, t };
@@ -264,22 +378,50 @@ const img_max = computed(() => {
   if (crop_pos.value.t + img_size.h < h.value * 100) t = crop_pos.value.t + img_size.h;
   return { l, t };
 });
-
+/**
+ * Установка размера кропа по коэффициенту
+ * @param k
+ */
 const set_crop_size = (k: number) => {
-  if (props.aspect < 1) {
-    crop_size.h = img_size.h * k;
-    crop_size.w = crop_size.h * props.aspect;
+  if (!$img.value) return;
+  let lh = img_size.h / 2 || h.value * 100;
+  let lw = img_size.w / 2 || w.value * 100;
+  if ($img.value.naturalHeight < $img.value.naturalWidth) {
+    if (lh * k < crop_min_size.value.h) crop_size.h = crop_min_size.value.h;
+    else if (lh * k > img_size.h) crop_size.h = img_size.h;
+    else crop_size.h = lh * k;
+    crop_size.w = crop_size.h * (props.aspect || 1);
   } else {
-    crop_size.w = img_size.w * k;
-    crop_size.h = crop_size.w / props.aspect;
+    if (lw * k < crop_min_size.value.w) crop_size.w = crop_min_size.value.w;
+    else if (lw * k > img_size.w) crop_size.w = img_size.w;
+    else crop_size.w = lw * k;
+    crop_size.h = crop_size.w / (props.aspect || 1);
   }
   return crop_size;
 };
+/**
+ * Минимальный размер кропа
+ */
+const crop_min_size = computed(() => {
+  let w = props.minSize;
+  let h = props.minSize;
+  if (img_size.w < w) w = img_size.w;
+  if (img_size.h < h) h = img_size.h;
+  if (!props.aspect || !$img.value) return { w, h };
+  if ($img.value.naturalHeight > $img.value.naturalWidth) h = w / props.aspect;
+  else w = h * props.aspect;
+  return { w, h };
+});
+/**
+ * Установка размера фото по коэффициенту
+ * @param k
+ */
 const set_img_size = (k: number) => {
   if (!$img.value || !$el.value) return img_size;
   const el_aspect = $el.value.offsetWidth / $el.value.offsetHeight;
   const aspect = $img.value.naturalWidth / $img.value.naturalHeight;
-  if (aspect < 1 || el_aspect > 1) {
+  if (!aspect) return img_size;
+  if (aspect <= 1 || el_aspect < 1) {
     img_size.h = h.value * (100 * k);
     img_size.w = img_size.h * aspect;
   } else {
@@ -288,8 +430,14 @@ const set_img_size = (k: number) => {
   }
   return img_size;
 };
-
+/**
+ * Коэффициент размера фото
+ */
 const img_size_k = ref(1);
+/**
+ * Функция зума фото
+ * @param z
+ */
 const zoom = (z: "+" | "-") => {
   const l = crop_pos.value.l + crop_size.w / 2 - img_pos.value.l;
   const t = crop_pos.value.t + crop_size.h / 2 - img_pos.value.t;
@@ -317,15 +465,24 @@ const zoom = (z: "+" | "-") => {
   img_drag.setX(x);
   img_drag.setY(y);
 };
-
-const get_default_pos = (size: { w: number; h: number }) => {
-  const l = w.value * 50 - size.w / 2;
-  const t = h.value * 50 - size.h / 2;
+/**
+ * Позация по умолчания
+ * @param size
+ */
+const get_default_pos = (size: { w: number; h: number }): { l: number; t: number } => {
+  let l = w.value * 50;
+  let t = h.value * 50;
+  if (size.w) l -= size.w / 2;
+  if (size.h) t -= size.h / 2;
   return { l, t };
 };
-
+/**
+ * Игнорировать ограничения позиции фото
+ */
 const ignore = ref(false);
-
+/**
+ * Установка позиций и размеров по умолчанию для фото и кропа
+ */
 const set_default = () => {
   ignore.value = true;
   set_img_size(img_size_k.value);
@@ -336,33 +493,94 @@ const set_default = () => {
   const local_crop_pos = get_default_pos(crop_size);
   crop_drag.setX(local_crop_pos.l);
   crop_drag.setY(local_crop_pos.t);
-  setTimeout(() => {
-    ignore.value = false;
-  });
+  if (props.src)
+    setTimeout(() => {
+      ignore.value = false;
+      setCrop();
+    });
 };
-
+/**
+ * Фото для кропа
+ */
+const src = computed((): string => props.src);
+/**
+ * Слежение за изменение фото для кропа
+ */
+watch(src, () => setTimeout(set_default));
+/**
+ * При загрузке dom
+ */
 onMounted(set_default);
+/**
+ * События
+ */
+const emit = defineEmits(["update:modelValue"]);
+/**
+ * Установить обрезанное изображение
+ */
+const setCrop = () => {
+  if (!$img.value) return;
+  const croppedImage = crop(
+    $img.value,
+    crop_pos.value.l - img_pos.value.l,
+    crop_pos.value.t - img_pos.value.t,
+    crop_size.w,
+    crop_size.h
+  );
+  emit("update:modelValue", croppedImage);
+};
+/**
+ * Обрезать изображение
+ */
+const crop = (
+  image: HTMLImageElement,
+  dx: number,
+  dy: number,
+  dw: number,
+  dh: number
+): string => {
+  const cnvs = document.createElement("canvas");
+  const wk = image.naturalWidth / image.width;
+  const hk = image.naturalHeight / image.height;
+  cnvs.width = dw * wk;
+  cnvs.height = dh * hk;
+  if (!cnvs) return "";
+  const cntx = cnvs.getContext("2d");
+  if (!cntx) return "";
+  cntx.drawImage(image, dx * wk, dy * hk, dw * wk, dh * hk, 0, 0, dw * wk, dh * hk);
+  return cnvs.toDataURL();
+};
 </script>
 
 <template>
   <div class="n-cropper" ref="$el">
+    <!-- Контролы зума -->
     <span class="zoom">
+      <!-- Больше -->
       <span @click="zoom('+')">+</span>
+      <!-- Меньше -->
       <span @click="zoom('-')">-</span>
     </span>
+    <!-- Фото -->
     <img
       :class="{ 'is-drag': img_drag.isDrag.value }"
       ref="$img"
       alt="SRC Image"
       :style="[get_size_style(img_size), get_pos_style(img_pos)]"
-      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbrvOZf5zaHg_9a8upGltfVtObFu_0QH1rcw&usqp=CAU"
+      :src="src"
     />
+    <!-- Кроп -->
     <div
       :class="{ 'is-drag': crop_drag.isDrag.value || p_drag.isDrag.value }"
       class="crop"
       ref="$crop"
-      :style="[get_size_style(crop_size), get_pos_style(crop_pos)]"
+      :style="[
+        get_size_style(crop_size),
+        get_pos_style(crop_pos),
+        { minWidth: `${crop_min_size.w}px`, minHeight: `${crop_min_size.h}px` },
+      ]"
     >
+      <!-- Точки кропа -->
       <i
         :class="{ 'is-drag': get_is_drag_p('left', 'top') }"
         class="left top"
@@ -412,12 +630,14 @@ onMounted(set_default);
         @mousedown="set_p"
         @touchstart.passive="set_p"
       />
+      <!-- Крестик в центре кропа -->
       <span></span>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+// Все перменные стилей в папке assets/style/n-components/cropper.scss
 .n-cropper {
   position: relative;
   display: inline-flex;
@@ -427,7 +647,8 @@ onMounted(set_default);
   background-image: url(./assets/image/bg.png);
   user-select: none;
   height: 500px;
-  width: 100%;
+  width: 700px;
+  // Зум
   .zoom {
     display: inline-flex;
     flex-direction: column;
@@ -436,41 +657,13 @@ onMounted(set_default);
     right: 0;
     top: 0;
     z-index: 100;
-    > span {
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition-duration: var(--n-cropper-transition-duration);
-      transition-timing-function: var(--n-cropper-transition-timing-function);
-      font-size: var(--n-cropper-point-size);
-      line-height: var(--n-cropper-point-size);
-      width: var(--n-cropper-point-size);
-      height: var(--n-cropper-point-size);
-      color: var(--n-cropper-point-border);
-      &:hover {
-        font-size: var(--n-cropper-point-hover-size);
-        line-height: var(--n-cropper-point-hover-size);
-        width: var(--n-cropper-point-hover-size);
-        height: var(--n-cropper-point-hover-size);
-        height: var(--n-cropper-point-hover-size);
-        color: var(--n-cropper-point-hover-border);
-      }
-      &.is-drag {
-        font-size: var(--n-cropper-point-hover-size);
-        line-height: var(--n-cropper-point-hover-size);
-        width: var(--n-cropper-point-active-size);
-        height: var(--n-cropper-point-active-size);
-        height: var(--n-cropper-point-active-size);
-        color: var(--n-cropper-point-active-border);
-      }
-    }
   }
-
+  // Фото
   img {
     position: absolute;
     display: inline-flex;
   }
+  // Кроп
   .crop {
     display: inline-flex;
     align-items: center;
@@ -487,6 +680,7 @@ onMounted(set_default);
       border-color: var(--n-cropper-active-border);
       border-style: var(--n-cropper-active-border-style);
     }
+    // крестик
     > span {
       display: flex;
       align-items: center;
@@ -506,6 +700,7 @@ onMounted(set_default);
         width: var(--n-cropper-point-size);
       }
     }
+    // Точка
     > i {
       z-index: 100;
       position: absolute;
@@ -605,7 +800,6 @@ onMounted(set_default);
       }
     }
   }
-
   img,
   .crop {
     cursor: grab;

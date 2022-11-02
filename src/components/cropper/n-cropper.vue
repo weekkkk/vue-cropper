@@ -71,10 +71,10 @@ const p_pos = computed((): { l: number; t: number } => {
  */
 watch(p_pos, () => {
   if (!p_drag.isDrag.value || !$p.value) return;
-  let lw = 0,
-    lh = 0,
-    l = 0,
-    t = 0;
+  let lw = start_resize_size.w,
+    lh = start_resize_size.h,
+    l = start_resize_pos.l,
+    t = start_resize_pos.t;
   if (!props.aspect) {
     if (get_is_drag_p("", "top")) {
       lh = start_resize_size.h - p_drag.y.value;
@@ -84,15 +84,11 @@ watch(p_pos, () => {
         t = crop_min.value.t;
         lh = start_resize_pos.t + start_resize_size.h - crop_min.value.t;
       }
-      crop_drag.setY(t);
-      crop_size.h = lh;
     } else if (get_is_drag_p("", "bottom")) {
       lh = start_resize_size.h + p_drag.y.value;
       if (start_resize_pos.t + lh > crop_max.value.t) {
         lh = crop_max.value.t - start_resize_pos.t;
       }
-      crop_drag.setY(start_resize_pos.t);
-      crop_size.h = lh;
     }
     if (get_is_drag_p("left", "")) {
       lw = start_resize_size.w - p_drag.x.value;
@@ -102,15 +98,11 @@ watch(p_pos, () => {
         l = crop_min.value.l;
         lw = start_resize_pos.l + start_resize_size.w - crop_min.value.l;
       }
-      crop_drag.setX(l);
-      crop_size.w = lw;
     } else if (get_is_drag_p("right", "")) {
       lw = start_resize_size.w + p_drag.x.value;
       if (start_resize_pos.l + lw > crop_max.value.l) {
         lw = crop_max.value.l - start_resize_pos.l;
       }
-      crop_drag.setX(start_resize_pos.l);
-      crop_size.w = lw;
     }
   } else {
     l = start_resize_pos.l;
@@ -154,12 +146,14 @@ watch(p_pos, () => {
     if (l + lw > crop_max.value.l) l = crop_max.value.l - lw;
     if (t < crop_min.value.t) t = crop_min.value.t;
     if (t + lh > crop_max.value.t) t = crop_max.value.t - lh;
-
-    if (lw < crop_min_size.value.w || lh < crop_min_size.value.h) return;
-    crop_drag.setX(l);
-    crop_drag.setY(t);
+  }
+  if (lw > crop_min_size.value.w) {
     crop_size.w = lw;
+    crop_drag.setX(l);
+  }
+  if (lh > crop_min_size.value.h) {
     crop_size.h = lh;
+    crop_drag.setY(t);
   }
 });
 /**
@@ -493,11 +487,10 @@ const set_default = () => {
   const local_crop_pos = get_default_pos(crop_size);
   crop_drag.setX(local_crop_pos.l);
   crop_drag.setY(local_crop_pos.t);
-  if (props.src)
-    setTimeout(() => {
-      ignore.value = false;
-      setCrop();
-    });
+  if (props.src) {
+    setTimeout(() => (ignore.value = false));
+    setTimeout(setCrop);
+  }
 };
 /**
  * Фото для кропа

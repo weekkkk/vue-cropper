@@ -1,9 +1,9 @@
 /**
- * Кроппер фото
- */
-import Cropper from "./cropper";
-/**
  * Инпут
  */
 import Input from "./input";
-export { Cropper, Input };
+/**
+ * Драг и Дроп
+ */
+import DragAndDrop from "./drag-and-drop";
+export { Input, DragAndDrop };

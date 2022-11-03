@@ -1,26 +1,26 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import { Cropper, Input } from './modules'
+import { DragAndDrop, Input } from "./modules";
 const routes: Array<RouteRecordRaw> = [
   {
     name: "",
     path: "",
-    component: () => import( "@/layout/base-layout.vue" ),
-    redirect: Cropper,
+    component: () => import("@/layout/base-layout.vue"),
+    redirect: DragAndDrop,
     children: [
       /**
-       * Кроппер фото
+       * Драг и дроп
        */
-      Cropper,
+      DragAndDrop,
       /**
        * Инпут
        */
-      Input
-    ]
+      Input,
+    ],
   },
 ];
-const router = createRouter( {
-  history: createWebHistory( process.env.BASE_URL ),
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
   routes,
-} );
-export { routes }
+});
+export { routes };
 export default router;

@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-const props = defineProps( {
+import { PropType } from "vue";
+import { DragItemModel } from "./model";
+const props = defineProps({
   /**
    * Элементы
    */
-  items: {}
-})
+  items: { type: Array as PropType<DragItemModel[]>, default: () => [] },
+});
 </script>
 
 <template>
   <div class="n-drag-and-drop">
-    <span>
-      <slot  />
-    </span>
+    <slot v-for="item in items" :key="item.Id" :item="item" />
   </div>
 </template>
 

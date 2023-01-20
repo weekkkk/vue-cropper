@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { onMounted, PropType, ref } from "vue";
-import { DragItemModel } from "./model";
+import { onMounted, PropType, ref, reactive } from 'vue';
+import { DragItemModel } from './model';
 const props = defineProps({
   /** Элементы */
   items: { type: Array as PropType<DragItemModel[]>, default: () => [] },
@@ -8,14 +8,14 @@ const props = defineProps({
 /** Обертка */
 const $el = ref<HTMLElement>();
 /** Элементы для перетаскивания */
-const elements = reactive<HTMLElement[]>();
+const elements = reactive<HTMLElement[]>([]);
 
 /** Установить элементы для перетаскивания */
-setItemRef( el ) {
-      if (el) {
-        this.itemRefs.push(el)
-      }
-    }
+const setItemRef = (el: HTMLElement) => {
+  if (el) {
+    elements.push(el);
+  }
+};
 /** Перетаскиваемый элемент */
 const $drag_el = ref<HTMLElement>();
 /** Клонировать элемент */
@@ -24,14 +24,14 @@ const clone = (e: Event) => {
   e.preventDefault();
   const $t = e.target;
   const children = $el.value.children;
-  console.log("clone", e.target);
+  console.log('clone', e.target);
 };
 onMounted(() => {
   if (!$el.value) return;
   const children = $el.value.children;
   for (let i = 0; i < children.length; i++) {
     const child = children[i] as HTMLElement;
-    if (child) child.addEventListener("mousedown", clone);
+    if (child) child.addEventListener('mousedown', clone);
   }
 });
 </script>

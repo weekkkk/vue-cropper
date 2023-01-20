@@ -1,6 +1,4 @@
-<template>
-  djksjdak
-</template>
+<template>Main</template>
 
 <script setup lang="ts"></script>
 

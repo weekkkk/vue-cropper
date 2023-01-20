@@ -1,26 +1,22 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import { Cropper, Input } from './modules'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import { Main } from './modules';
 const routes: Array<RouteRecordRaw> = [
   {
-    name: "",
-    path: "",
-    component: () => import( "@/layout/base-layout.vue" ),
-    redirect: Cropper,
+    name: '',
+    path: '',
+    component: () => import('@/layout/base-layout.vue'),
+    redirect: Main,
     children: [
       /**
-       * Кроппер фото
+       * * Главная страница
        */
-      Cropper,
-      /**
-       * Инпут
-       */
-      Input
-    ]
+      Main,
+    ],
   },
 ];
-const router = createRouter( {
-  history: createWebHistory( process.env.BASE_URL ),
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
   routes,
-} );
-export { routes }
+});
+export { routes };
 export default router;

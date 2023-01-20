@@ -1,2 +1,1 @@
-export const CROPPER = "cropper";
-export const INPUT = "input";
+export const MAIN = 'main';

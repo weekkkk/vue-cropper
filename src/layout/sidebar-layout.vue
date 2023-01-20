@@ -22,9 +22,9 @@
 </template>
 
 <script setup lang="ts">
-import { routes } from "@/router";
-import { computed, ref } from "vue";
-import { RouteRecordRaw, useRoute, useRouter } from "vue-router";
+import { routes } from '@/router';
+import { computed, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 /**
  * Ссылки
  */
@@ -58,7 +58,7 @@ const onClose = () => {
 /**
  * Слушатель кликов
  */
-window.addEventListener("click", onClose);
+window.addEventListener('click', onClose);
 </script>
 
 <style lang="scss" scoped>
@@ -103,7 +103,7 @@ window.addEventListener("click", onClose);
   &::before,
   &::after,
   span {
-    content: "";
+    content: '';
     display: inline-block;
     height: 2px;
     width: 24px;

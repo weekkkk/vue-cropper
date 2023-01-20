@@ -1,9 +1,5 @@
 /**
- * Кроппер фото
+ * * Главная страница
  */
-import Cropper from "./cropper";
-/**
- * Инпут
- */
-import Input from "./input";
-export { Cropper, Input };
+import Main from './main';
+export { Main };

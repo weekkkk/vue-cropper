@@ -1,4 +1,4 @@
-# vue-cropper
+# n-components
 
 ## Project setup
 ```

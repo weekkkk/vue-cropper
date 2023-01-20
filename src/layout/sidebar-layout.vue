@@ -6,7 +6,7 @@
     <div class="sidebar-layout f fd-col px-3 pb-3 rg-2 bg-default" v-show="isOpen">
       <h4 class="c-brand py-3 bb">@n-components</h4>
       <div
-        class="link medium py-2"
+        class="link fw-medium py-2"
         :class="{
           'c-brand': route.name == link.name,
           'c-second-100': route.name != link.name,

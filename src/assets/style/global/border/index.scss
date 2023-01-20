@@ -1,0 +1,44 @@
+:root {
+  --n-border-width: 1px;
+}
+
+.bl,
+.br,
+.bt,
+.bb,
+.bx,
+.by,
+.b {
+  border-width: var(--n-border-width);
+  border-color: var(--n-border);
+}
+
+.bl {
+  border-left-style: solid;
+}
+
+.br {
+  border-right-style: solid;
+}
+
+.bt {
+  border-top-style: solid;
+}
+
+.bb {
+  border-bottom-style: solid;
+}
+
+.bx {
+  border-left-style: solid;
+  border-right-style: solid;
+}
+
+.by {
+  border-top-style: solid;
+  border-bottom-style: solid;
+}
+
+.b {
+  border-style: solid;
+}

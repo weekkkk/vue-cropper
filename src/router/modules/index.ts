@@ -1,5 +1,5 @@
 /**
- * * Главная страница
+ * * Главная
  */
 import Main from './main';
 export { Main };

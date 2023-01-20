@@ -1,7 +1,7 @@
 import { RouteRecordRaw } from 'vue-router'
 import { MAIN } from './names'
 /**
- * Инпут
+ * * Главная
  */
 const Main: RouteRecordRaw = {
   name: MAIN,

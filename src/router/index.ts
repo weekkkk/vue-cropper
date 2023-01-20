@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { Main } from './modules';
+import Popover from './modules/popover';
 const routes: Array<RouteRecordRaw> = [
   {
     name: '',
@@ -8,9 +9,13 @@ const routes: Array<RouteRecordRaw> = [
     redirect: Main,
     children: [
       /**
-       * * Главная страница
+       * * Главная
        */
       Main,
+      /**
+       * * Поповер
+       */
+      Popover,
     ],
   },
 ];

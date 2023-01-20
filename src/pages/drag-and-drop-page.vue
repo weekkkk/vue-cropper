@@ -15,14 +15,16 @@ for (let i = 1; i <= 10; i++) items.push(new DragItemModel({ Id: i }));
   </div> -->
   <n-drag-and-drop class="n-wrap" :items="items">
     <template #default="{ item }">
-      <span :class="`n-item ${item.Id % 3}`">
-        {{ item.Id }}
+      <span :class="`n-item _${item.Id % 3}`">
+        <div>
+          {{ item.Id }}
+        </div>
       </span>
     </template>
   </n-drag-and-drop>
 </template>
 
-<style lang="sass" scoped>
+<style lang="scss" scoped>
 .n-wrap {
   display: flex;
   flex-wrap: wrap;
@@ -31,11 +33,19 @@ for (let i = 1; i <= 10; i++) items.push(new DragItemModel({ Id: i }));
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 400px;
     background-color: var(--n-main);
     user-select: none;
-    &.1 {
-      width: calc(100% / 3 - 32px / 3);
+    &._0 {
+      width: calc(100% / 5 - 32px / 3);
+      height: 400px;
+    }
+    &._1 {
+      width: calc(100% / 2 - 32px / 3);
+      height: 300px;
+    }
+    &._2 {
+      width: calc(30% - 32px / 3);
+      height: 200px;
     }
   }
 }

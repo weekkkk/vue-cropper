@@ -3,13 +3,13 @@
     <span></span>
   </div>
   <transition name="scale_sidebar">
-    <div class="sidebar-layout f d-c px-3 pb-3 rg-2" v-show="isOpen">
-      <h4 class="c-main py-3 bb">@n-components</h4>
+    <div class="sidebar-layout f fd-col px-3 pb-3 rg-2 bg-default" v-show="isOpen">
+      <h4 class="c-brand py-3 bb">@n-components</h4>
       <div
         class="link medium py-2"
         :class="{
-          'c-main': route.name == link.name,
-          'c-signature': route.name != link.name,
+          'c-brand': route.name == link.name,
+          'c-second-100': route.name != link.name,
         }"
         v-for="link in links"
         :key="link.name"
@@ -65,7 +65,6 @@ window.addEventListener('click', onClose);
 .sidebar-layout {
   max-width: 240px;
   width: 100%;
-  background-color: var(--n-background);
   transition-duration: 0.15s;
   transition-timing-function: ease-in-out;
   position: sticky;
@@ -73,7 +72,7 @@ window.addEventListener('click', onClose);
   max-height: calc(100vh - 48px);
   .link {
     cursor: pointer;
-    &:not(.c-main) {
+    &:not(.c-brand) {
       &:hover {
         filter: brightness(110%);
       }

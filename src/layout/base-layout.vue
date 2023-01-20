@@ -1,9 +1,9 @@
 <template>
-  <div class="base-layout f j-c">
+  <div class="base-layout f jc-c bg-second-0">
     <div class="inner f cg-4 p-4">
       <sidebar-layout></sidebar-layout>
-      <div class="container f d-c px-3 pb-3 rg-3">
-        <h4 class="c-main bb py-3">@{{ (route.meta?.Title as string).toLowerCase() }}</h4>
+      <div class="container f fd-col px-3 pb-3 rg-3 bg-default">
+        <h4 class="c-brand bb py-3">@{{ (route.meta?.Title as string).toLowerCase() }}</h4>
         <router-view></router-view>
       </div>
     </div>
@@ -22,14 +22,12 @@ const route = useRoute();
 <style lang="scss" scoped>
 .base-layout {
   min-height: 100vh;
-  background-color: var(--n-background-disabled);
   .inner {
     width: 100%;
     max-width: 1024px;
   }
   .container {
     width: 100%;
-    background-color: var(--n-background);
   }
 }
 </style>

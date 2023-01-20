@@ -11,8 +11,8 @@
 }
 html {
   font-family: 'Montserrat';
-  font-size: var(--n-line-height-regular);
-  font-size: var(--n-font-size-paragraph);
-  color: var(--n-text);
+  font-size: var(--n-lh-regular);
+  font-size: var(--n-fs-p);
+  color: var(--n-base);
 }
 </style>

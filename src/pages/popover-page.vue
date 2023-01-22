@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { Position } from '@/components/popover/enums';
 import NPopover from '@/components/popover/n-popover.vue';
 
-const pos = ref(Position.Bottom);
+const pos = ref(Position.Right);
 const positions = Object.values(Position).filter(
   (el) => Number(el) || el == '0'
 );
@@ -26,6 +26,15 @@ onMounted(() =>
 // function onBlur(target: HTMLElement) {
 //   console.log('blur', target);
 // }
+
+function fp ()
+{
+  window.scroll(0, window.scrollY + 1);
+}
+function fm ()
+{
+  window.scroll(0, window.scrollY - 1);
+}
 </script>
 
 <template>
@@ -40,9 +49,14 @@ onMounted(() =>
     @close="onClose"
     @focus="onFocus"
     @blur="onBlur" -->
-  <img height="1000"/>
+  <img height="1000" />
 
-  <NPopover class='test' ref="popover" :position="pos">
+  <div class="tt f cg-3">
+    <button @click="fp">+</button>
+    <button @click="fm">-</button>
+  </div>
+
+  <NPopover class="test" ref="popover" :position="pos">
     <h2>Element</h2>
   </NPopover>
 
@@ -50,6 +64,12 @@ onMounted(() =>
 </template>
 
 <style lang="scss" scoped>
+.tt {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
 .positions {
   position: fixed;
   top: 0;

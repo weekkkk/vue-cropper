@@ -70,9 +70,38 @@ function click ()
 /**
  * * Высчитать позицию
  */
-function calc (p: Position, about: DOMRect, rect: DOMRect): { x: number, y: number; position: Position; }
+function calc (p: Position, about: DOMRect, rect: DOMRect, i = 0): { x: number, y: number; position: Position; }
 {
+  const min = 8 + 4;
   const settings = { x: 0, y: 0, position: p };
+  const ignore = i == 4;
+  if (ignore)
+  {
+    const indets = [
+      about.left - rect.width,
+      window.innerWidth - about.right - rect.width,
+      about.top - rect.height,
+      window.innerHeight - about.bottom - rect.height
+    ];
+    switch (indets.indexOf(Math.max(...indets)))
+    {
+      case 0:
+        p = Position.Left;
+        break;
+      case 1:
+        p = Position.Right;
+        break;
+      case 2:
+        p = Position.Top;
+        break;
+      case 3:
+        p = Position.Bottom;
+        break;
+    }
+
+    console.error('ignore', { i, p });
+    settings.position = p;
+  }
 
   switch (p)
   {
@@ -86,11 +115,12 @@ function calc (p: Position, about: DOMRect, rect: DOMRect): { x: number, y: numb
         settings.x = window.innerWidth - rect.width;
 
       if (
-        settings.y < 0 ||
-        about.right - window.innerWidth >= about.width / 2 ||
-        about.left <= -about.width / 2
+        !ignore &&
+        (settings.y < 0 ||
+          about.right - window.innerWidth >= about.width / 2 - min ||
+          about.left <= -about.width / 2 + min)
       )
-        return calc(Position.Right, about, rect);
+        return calc(Position.Right, about, rect, i + 1);
       break;
     case Position.Left:
       settings.y = about.top + about.height / 2 - rect.height / 2;
@@ -102,13 +132,13 @@ function calc (p: Position, about: DOMRect, rect: DOMRect): { x: number, y: numb
         settings.y = window.innerHeight - rect.height;
 
       if (
-        settings.x < 0 ||
-        about.bottom - window.innerHeight >= about.height / 2 ||
-        about.top <= -about.height / 2
+        !ignore &&
+        (settings.x < 0 ||
+          about.bottom - window.innerHeight >= about.height / 2 - min ||
+          about.top <= -about.height / 2 + min)
       )
-        return calc(Position.Top, about, rect);
+        return calc(Position.Top, about, rect, i + 1);
       break;
-
     case Position.Right:
       settings.y = about.top + about.height / 2 - rect.height / 2;
       settings.x = about.right;
@@ -119,11 +149,12 @@ function calc (p: Position, about: DOMRect, rect: DOMRect): { x: number, y: numb
         settings.y = window.innerHeight - rect.height;
 
       if (
-        settings.x + rect.width > window.innerWidth ||
-        about.bottom - window.innerHeight >= about.height / 2 ||
-        about.top <= -about.height / 2
+        !ignore &&
+        (settings.x + rect.width > window.innerWidth ||
+          about.bottom - window.innerHeight >= about.height / 2 - min ||
+          about.top <= -about.height / 2 + min)
       )
-        return calc(Position.Bottom, about, rect);
+        return calc(Position.Bottom, about, rect, i + 1);
       break;
     case Position.Bottom:
       settings.x = about.left + about.width / 2 - rect.width / 2;
@@ -135,11 +166,12 @@ function calc (p: Position, about: DOMRect, rect: DOMRect): { x: number, y: numb
         settings.x = window.innerWidth - rect.width;
 
       if (
-        settings.y + rect.height > window.innerHeight ||
-        about.right - window.innerWidth >= about.width / 2 ||
-        about.left <= -about.width / 2
+        !ignore &&
+        (settings.y + rect.height > window.innerHeight ||
+          about.right - window.innerWidth >= about.width / 2 - min ||
+          about.left <= -about.width / 2 + min)
       )
-        return calc(Position.Left, about, rect);
+        return calc(Position.Left, about, rect, i + 1);
       break;
     case Position.Auto:
       return calc(Position.Top, about, rect);
@@ -165,8 +197,6 @@ async function init ()
   const triangleSettings = calc(position.value, elementRect, triangleRect);
   triangle.x = triangleSettings.x;
   triangle.y = triangleSettings.y;
-
-  console.log({ triangleSettings, contentSettings });
 }
 /**
  * * Открыть
@@ -176,6 +206,8 @@ function open ()
   visible.value = true;
   init();
   window.addEventListener('click', blur);
+  // window.addEventListener('scroll', init);
+  // window.addEventListener('click', blur);
   if (!$content.value) return;
   emit('open', $content.value);
 }
@@ -239,18 +271,10 @@ defineExpose({
     <Teleport to="body">
       <Transition name="n-popover_animation">
         <div class="n-popover_container" v-if="visible">
-          <div
-            ref="$triangle"
-            class="n-popover_triangle"
-            :class="classes"
-            :style="{ left: `${triangle.x}px`, top: `${triangle.y}px` }"
-          />
-          <div
-            ref="$content"
-            class="n-popover_content"
-            :class="classes"
-            :style="{ left: `${content.x}px`, top: `${content.y}px` }"
-          >
+          <div ref="$triangle" class="n-popover_triangle" :class="classes"
+            :style="{ left: `${ triangle.x }px`, top: `${ triangle.y }px` }" />
+          <div ref="$content" class="n-popover_content" :class="classes"
+            :style="{ left: `${ content.x }px`, top: `${ content.y }px` }">
             <div class="inner bg-brand">
               <h1 style="height: 200px">Content</h1>
             </div>
@@ -276,21 +300,26 @@ defineExpose({
     max-width: 100%;
     max-height: 100%;
 
-    &.top {
-      transform: translateY(-4px);
+    .inner {
+      border-radius: 4px;
+      margin: 4px;
     }
 
-    &.bottom {
-      transform: translateY(4px);
-    }
+    // &.top {
+    //   transform: translateY(-4px);
+    // }
 
-    &.left {
-      transform: translateX(-4px);
-    }
+    // &.bottom {
+    //   transform: translateY(4px);
+    // }
 
-    &.right {
-      transform: translateX(4px);
-    }
+    // &.left {
+    //   transform: translateX(-4px);
+    // }
+
+    // &.right {
+    //   transform: translateX(4px);
+    // }
   }
 
   &_triangle {
@@ -299,7 +328,7 @@ defineExpose({
     max-width: 0;
     border-style: solid;
     border-color: transparent;
-    border-width: 8px;
+    border-width: 4px;
 
     &.top {
       border-top-color: red;

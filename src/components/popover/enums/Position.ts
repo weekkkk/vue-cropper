@@ -1,27 +1,26 @@
 /**
  * * Позиции
  */
-enum PositionEnum
-{
+enum Position {
   /**
    * * Сверху
    */
-  Top = 0,
+  Top = 'top',
   /**
    * * Справа
    */
-  Right = 1,
+  Right = 'right',
   /**
    * * Снизу
-  */
-  Bottom = 2,
+   */
+  Bottom = 'bottom',
   /**
    * * Слева
    */
-  Left = 3,
+  Left = 'left',
   /**
    * * Автоопределение
    */
-  Auto = 4,
+  Auto = 'auto',
 }
-export default PositionEnum;
+export default Position;

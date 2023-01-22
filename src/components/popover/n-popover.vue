@@ -1,11 +1,9 @@
 <script lang="ts" setup>
 import
 {
-  type PropType, ref, nextTick, computed,
-  // watch,
-  // onMounted,
-  onUnmounted, reactive
+  type PropType, ref, nextTick, computed, onUnmounted, reactive,
 } from 'vue';
+import { Color } from '../enums';
 import { Position } from './enums';
 /**
  * * Свойства
@@ -14,7 +12,19 @@ const props = defineProps({
   /**
    * * Позиция
    */
-  position: { type: Number as PropType<Position>, default: Position.Bottom }
+  position: { type: String as PropType<Position>, default: Position.Bottom },
+  /**
+   * * Цвет
+   */
+  color: { type: String as PropType<Color>, default: Color.Default },
+  /**
+   * * Ширина
+   */
+  width: { type: String, default: 'auto' },
+  /**
+   * * Классы
+   */
+  classes: { type: String, default: '' },
 });
 /**
  * * События
@@ -52,7 +62,7 @@ const triangle = reactive({ x: 0, y: 0 });
 /**
  * * Позиция
  */
-const position = ref(props.position);
+const _position = ref(props.position);
 /**
  * * Клик по элементу
  */
@@ -72,16 +82,18 @@ function click ()
  */
 function calc (p: Position, about: DOMRect, rect: DOMRect, i = 0): { x: number, y: number; position: Position; }
 {
-  const min = 8 + 4;
+  const bw = getComputedStyle(document.documentElement).getPropertyValue('--n-popover-tr').replace('px', '');
+  const br = getComputedStyle(document.documentElement).getPropertyValue('--n-popover-br').replace('px', '');
+  const min = Number(bw) * 2 + Number(br);
   const settings = { x: 0, y: 0, position: p };
   const ignore = i == 4;
   if (ignore)
   {
     const indets = [
-      about.left - rect.width,
-      window.innerWidth - about.right - rect.width,
-      about.top - rect.height,
-      window.innerHeight - about.bottom - rect.height
+      about.left,
+      window.innerWidth - about.right,
+      about.top,
+      window.innerHeight - about.bottom
     ];
     switch (indets.indexOf(Math.max(...indets)))
     {
@@ -178,6 +190,9 @@ function calc (p: Position, about: DOMRect, rect: DOMRect, i = 0): { x: number, 
   }
   return settings;
 }
+/**
+ * * Инициализация позиций элементов
+ */
 async function init ()
 {
   await nextTick();
@@ -189,27 +204,26 @@ async function init ()
   const contentSettings = calc(props.position, elementRect, contentRect);
   content.x = contentSettings.x;
   content.y = contentSettings.y;
-  position.value = contentSettings.position;
+  _position.value = contentSettings.position;
 
   await nextTick();
   if (!$triangle.value) return;
   const triangleRect = $triangle.value.getBoundingClientRect();
-  const triangleSettings = calc(position.value, elementRect, triangleRect);
+  const triangleSettings = calc(_position.value, elementRect, triangleRect);
   triangle.x = triangleSettings.x;
   triangle.y = triangleSettings.y;
 }
 /**
  * * Открыть
  */
-function open ()
+async function open ()
 {
   visible.value = true;
-  init();
+  await init();
   window.addEventListener('click', blur);
-  // window.addEventListener('scroll', init);
-  // window.addEventListener('click', blur);
-  if (!$content.value) return;
-  emit('open', $content.value);
+  await nextTick();
+  if ($content.value)
+    emit('open', $content.value);
 }
 /**
  * * Закрыть
@@ -237,26 +251,11 @@ function blur (e: Event)
 /**
  * * При разрушении компонента
  */
-onUnmounted(close);
-/**
- * * Класс позиции
- */
-const classes = computed((): string =>
+onUnmounted(() =>
 {
-  switch (position.value)
-  {
-    case Position.Top:
-      return 'top';
-    case Position.Right:
-      return 'right';
-    case Position.Bottom:
-      return 'bottom';
-    case Position.Left:
-      return 'left';
-  }
-  return '';
-}
-);
+  console.log('onUnmounted');
+  close();
+});
 /**
  * * Поделиться с родителем
  */
@@ -264,19 +263,48 @@ defineExpose({
   open,
   close
 });
+/**
+ * * Цвет
+ */
+const _color = computed((): string =>
+{
+  const prefix = '--n-';
+  const postfix = props.color == Color.Second ? '-100' : '';
+  return `var(${ prefix }${ props.color }${ postfix })`;
+}
+);
 </script>
 
 <template>
   <div class="n-popover_element bg-second-40" ref="$element" @click="click">
     <Teleport to="body">
       <Transition name="n-popover_animation">
-        <div class="n-popover_container" v-if="visible">
-          <div ref="$triangle" class="n-popover_triangle" :class="classes"
-            :style="{ left: `${ triangle.x }px`, top: `${ triangle.y }px` }" />
-          <div ref="$content" class="n-popover_content" :class="classes"
-            :style="{ left: `${ content.x }px`, top: `${ content.y }px` }">
-            <div class="inner bg-brand">
-              <h1 style="height: 200px">Content</h1>
+        <div
+          class="n-popover_container"
+          :style="{
+            '--n-popover-c': _color,
+          }"
+          v-if="visible"
+        >
+          <div
+            ref="$triangle"
+            class="n-popover_triangle"
+            :class="[_position, color]"
+            :style="{ left: `${triangle.x}px`, top: `${triangle.y}px` }"
+          />
+          <div
+            ref="$content"
+            class="n-popover_content"
+            :style="{ left: `${content.x}px`, top: `${content.y}px` }"
+          >
+            <div
+              class="inner"
+              :class="[_position, color]"
+              :style="{
+                width,
+              }"
+            >
+              <slot name="content" />
             </div>
           </div>
         </div>
@@ -286,7 +314,24 @@ defineExpose({
   </div>
 </template>
 
+<style lang="scss">
+:root {
+  --n-popover-c: var(--n-default);
+  --n-popover-tr: 4px;
+  --n-popover-br: 8px;
+  --n-popover-sh: 0 0 calc(var(--n-popover-tr) * 2);
+  --n-popover-ts: 0.15s ease-in-out;
+}
+</style>
+
 <style lang="scss" scoped>
+$color: var(--n-popover-c);
+$shadow: var(--n-popover-sh) + $color;
+$triangle: var(--n-popover-tr);
+$radius: var(--n-popover-br);
+$min: calc($triangle * 2 + $radius * 2);
+$transition: var(--n-popover-ts);
+
 .n-popover {
   &_element {
     display: inline-flex;
@@ -297,29 +342,21 @@ defineExpose({
 
   &_content {
     position: fixed;
-    max-width: 100%;
-    max-height: 100%;
+    padding: $triangle;
+    color: var(--n-default);
 
     .inner {
-      border-radius: 4px;
-      margin: 4px;
+      background-color: $color;
+      box-shadow: $shadow;
+      border-radius: $radius;
+      min-height: $min;
+      min-width: $min;
+
+      &.default {
+        box-shadow: var(--n-popover-sh) var(--n-base);
+        color: var(--n-base);
+      }
     }
-
-    // &.top {
-    //   transform: translateY(-4px);
-    // }
-
-    // &.bottom {
-    //   transform: translateY(4px);
-    // }
-
-    // &.left {
-    //   transform: translateX(-4px);
-    // }
-
-    // &.right {
-    //   transform: translateX(4px);
-    // }
   }
 
   &_triangle {
@@ -328,36 +365,38 @@ defineExpose({
     max-width: 0;
     border-style: solid;
     border-color: transparent;
-    border-width: 4px;
+    z-index: 1;
+    border-width: $triangle;
 
     &.top {
-      border-top-color: red;
+      border-top-color: $color;
       border-bottom-width: 0;
     }
 
     &.bottom {
       border-top-width: 0;
-      border-bottom-color: red;
+      border-bottom-color: $color;
     }
 
     &.left {
       border-right-width: 0;
-      border-left-color: red;
+      border-left-color: $color;
     }
 
     &.right {
       border-left-width: 0;
-      border-right-color: red;
+      border-right-color: $color;
     }
   }
 
   &_container {
     position: absolute;
+    z-index: 1000;
   }
 
   &_animation-enter-active,
   &_animation-leave-active {
-    transition: opacity 1s ease;
+    transition: $transition;
   }
 
   &_animation-enter-from,

@@ -1,6 +1,12 @@
 <script lang="ts" setup>
-import { type PropType, ref, nextTick, computed } from 'vue';
-import { PositionEnum } from './enums';
+import
+{
+  type PropType, ref, nextTick, computed,
+  // watch,
+  // onMounted,
+  onUnmounted, reactive
+} from 'vue';
+import { Position } from './enums';
 /**
  * * Свойства
  */
@@ -8,8 +14,17 @@ const props = defineProps({
   /**
    * * Позиция
    */
-  position: { type: Number as PropType<PositionEnum>, default: PositionEnum.Bottom }
+  position: { type: Number as PropType<Position>, default: Position.Bottom }
 });
+/**
+ * * События
+ */
+const emit = defineEmits<{
+  (e: 'open', target: HTMLElement): void;
+  (e: 'close', target: HTMLElement): void;
+  (e: 'focus', target: HTMLElement): void;
+  (e: 'blur', target: HTMLElement): void;
+}>();
 /**
  * * Видимость
  */
@@ -29,126 +44,150 @@ const $triangle = ref<HTMLElement>();
 /**
  * * Координаты поповера
  */
-const content = ref({ x: 0, y: 0 });
+const content = reactive({ x: 0, y: 0 });
 /**
  * * Координаты треугольника
  */
-const triangle = ref({ x: 0, y: 0 });
+const triangle = reactive({ x: 0, y: 0 });
 /**
  * * Позиция
  */
 const position = ref(props.position);
 /**
- * * Получить координаты поповера
- * @param pos - Позиция
- * @param element - Координаты элемента
- * @param rect - Координаты попвера
- * @param k - Кол-во рекурсий
- */
-function getSettings (pos: PositionEnum, element: DOMRect, rect: DOMRect, k = 0): { x: number, y: number; }
-{
-  console.log('getSettings', pos, k);
-
-  const settings = { x: 0, y: 0 };
-
-  if (pos == PositionEnum.Top || pos == PositionEnum.Bottom)
-    settings.x = element.left + element.width / 2 - rect.width / 2;
-  else if (pos == PositionEnum.Left || pos == PositionEnum.Right)
-    settings.y = element.top + element.height / 2 - rect.height / 2;
-
-  switch (pos)
-  {
-    case PositionEnum.Top:
-      settings.y = element.top - rect.height;
-      break;
-    case PositionEnum.Bottom:
-      settings.y = element.bottom;
-      break;
-    case PositionEnum.Left:
-      settings.x = element.left - rect.width;
-      break;
-    case PositionEnum.Right:
-      settings.x = element.right;
-      break;
-    case PositionEnum.Auto:
-      // position.value = PositionEnum.Top;
-      return getSettings(PositionEnum.Top, element, rect, k + 1);
-  }
-
-  let right = settings.x + rect.width;
-  let bottom = settings.y + rect.height;
-  const ww = window.innerWidth;
-  const wh = window.innerHeight;
-
-  if (settings.x < 0 && pos != PositionEnum.Left)
-    settings.x = 0;
-  if (settings.y < 0 && pos != PositionEnum.Top)
-    settings.y = 0;
-  if (right > ww && pos != PositionEnum.Right)
-    settings.x = ww - rect.width;
-  if (bottom > wh && pos != PositionEnum.Bottom)
-    settings.y = wh - rect.height;
-
-  right = Math.floor(settings.x + rect.width);
-  bottom = Math.floor(settings.y + rect.height);
-
-  if ((pos != position.value || k == 0) && (settings.x < 0 || settings.y < 0 || right > ww || bottom > wh))
-  {
-    if (pos == PositionEnum.Left)
-      return getSettings(PositionEnum.Top, element, rect, k + 1);
-    else if (pos == PositionEnum.Top)
-      return getSettings(PositionEnum.Right, element, rect, k + 1);
-    else if (pos == PositionEnum.Right)
-      return getSettings(PositionEnum.Bottom, element, rect, k + 1);
-    else if (pos == PositionEnum.Bottom)
-      return getSettings(PositionEnum.Left, element, rect, k + 1);
-  }
-
-  position.value = pos;
-
-  return settings;
-}
-/**
  * * Клик по элементу
  */
 function click ()
 {
-  console.log('click');
-  if (visible.value) close();
-  else open();
+  if (visible.value)
+    close();
+  else
+  {
+    open();
+    if (!$element.value) return;
+    emit('focus', $element.value);
+  }
 }
 /**
- * * Установить настройки
+ * * Высчитать позицию
  */
-async function setSettings ()
+function calc (p: Position, about: DOMRect, rect: DOMRect): { x: number, y: number; position: Position; }
+{
+  const settings = { x: 0, y: 0, position: p };
+
+  switch (p)
+  {
+    case Position.Top:
+      settings.x = about.left + about.width / 2 - rect.width / 2;
+      settings.y = about.top - rect.height;
+
+      if (settings.x < 0)
+        settings.x = 0;
+      else if (settings.x + rect.width > window.innerWidth)
+        settings.x = window.innerWidth - rect.width;
+
+      if (
+        settings.y < 0 ||
+        about.right - window.innerWidth >= about.width / 2 ||
+        about.left <= -about.width / 2
+      )
+        return calc(Position.Right, about, rect);
+      break;
+    case Position.Left:
+      settings.y = about.top + about.height / 2 - rect.height / 2;
+      settings.x = about.left - rect.width;
+
+      if (settings.y < 0)
+        settings.y = 0;
+      else if (settings.y + rect.height > window.innerHeight)
+        settings.y = window.innerHeight - rect.height;
+
+      if (
+        settings.x < 0 ||
+        about.bottom - window.innerHeight >= about.height / 2 ||
+        about.top <= -about.height / 2
+      )
+        return calc(Position.Top, about, rect);
+      break;
+
+    case Position.Right:
+      settings.y = about.top + about.height / 2 - rect.height / 2;
+      settings.x = about.right;
+
+      if (settings.y < 0)
+        settings.y = 0;
+      else if (settings.y + rect.height > window.innerHeight)
+        settings.y = window.innerHeight - rect.height;
+
+      if (
+        settings.x + rect.width > window.innerWidth ||
+        about.bottom - window.innerHeight >= about.height / 2 ||
+        about.top <= -about.height / 2
+      )
+        return calc(Position.Bottom, about, rect);
+      break;
+    case Position.Bottom:
+      settings.x = about.left + about.width / 2 - rect.width / 2;
+      settings.y = about.bottom;
+
+      if (settings.x < 0)
+        settings.x = 0;
+      else if (settings.x + rect.width > window.innerWidth)
+        settings.x = window.innerWidth - rect.width;
+
+      if (
+        settings.y + rect.height > window.innerHeight ||
+        about.right - window.innerWidth >= about.width / 2 ||
+        about.left <= -about.width / 2
+      )
+        return calc(Position.Left, about, rect);
+      break;
+    case Position.Auto:
+      return calc(Position.Top, about, rect);
+  }
+  return settings;
+}
+async function init ()
 {
   await nextTick();
   if (!$element.value || !$content.value) return;
+
   const elementRect = $element.value.getBoundingClientRect();
+
   const contentRect = $content.value.getBoundingClientRect();
-  content.value = getSettings(position.value, elementRect, contentRect);
+  const contentSettings = calc(props.position, elementRect, contentRect);
+  content.x = contentSettings.x;
+  content.y = contentSettings.y;
+  position.value = contentSettings.position;
+
   await nextTick();
   if (!$triangle.value) return;
   const triangleRect = $triangle.value.getBoundingClientRect();
-  triangle.value = getSettings(position.value, elementRect, triangleRect);
+  const triangleSettings = calc(position.value, elementRect, triangleRect);
+  triangle.x = triangleSettings.x;
+  triangle.y = triangleSettings.y;
+
+  console.log({ triangleSettings, contentSettings });
 }
 /**
  * * Открыть
  */
 function open ()
 {
-  console.log('open');
   visible.value = true;
-  setSettings();
+  init();
   window.addEventListener('click', blur);
+  if (!$content.value) return;
+  emit('open', $content.value);
 }
 /**
  * * Закрыть
  */
 function close ()
 {
-  console.log('close');
   visible.value = false;
+  window.removeEventListener('click', blur);
+  if (!$content.value) return;
+  emit('close', $content.value);
 }
 /**
  * * Убрать фокус
@@ -156,9 +195,17 @@ function close ()
 function blur (e: Event)
 {
   const target = e.target as HTMLElement;
-  if (!$content.value || $content.value == target || $content.value.contains(target) || !$element.value || $element.value == target || $element.value.contains(target)) return;
+  if (!target ||
+    !$content.value || $content.value == target || $content.value.contains(target) ||
+    !$element.value || $element.value == target || $element.value.contains(target) ||
+    !$triangle.value || $triangle.value == target || $triangle.value.contains(target)) return;
+  emit('blur', target);
   close();
 }
+/**
+ * * При разрушении компонента
+ */
+onUnmounted(close);
 /**
  * * Класс позиции
  */
@@ -166,43 +213,50 @@ const classes = computed((): string =>
 {
   switch (position.value)
   {
-    case PositionEnum.Top:
+    case Position.Top:
       return 'top';
-    case PositionEnum.Right:
+    case Position.Right:
       return 'right';
-    case PositionEnum.Bottom:
+    case Position.Bottom:
       return 'bottom';
-    case PositionEnum.Left:
+    case Position.Left:
       return 'left';
   }
   return '';
 }
 );
+/**
+ * * Поделиться с родителем
+ */
+defineExpose({
+  open,
+  close
+});
 </script>
 
 <template>
   <div class="n-popover_element bg-second-40" ref="$element" @click="click">
     <Teleport to="body">
-      <div
-        ref="$triangle"
-        v-if="visible"
-        class="n-popover_triangle"
-        :class="classes"
-        :style="{ left: `${triangle.x}px`, top: `${triangle.y}px` }"
-      />
-    </Teleport>
-    <Teleport to="body">
-      <div
-        ref="$content"
-        v-if="visible"
-        class="n-popover_content"
-        :class="classes"
-        :style="{ left: `${content.x}px`, top: `${content.y}px` }"
-      >
-        <div class="inner bg-brand">
-          <h1>Content</h1>
+      <Transition name="n-popover_animation">
+        <div class="n-popover_container" v-if="visible">
+          <div
+            ref="$triangle"
+            class="n-popover_triangle"
+            :class="classes"
+            :style="{ left: `${triangle.x}px`, top: `${triangle.y}px` }"
+          />
+          <div
+            ref="$content"
+            class="n-popover_content"
+            :class="classes"
+            :style="{ left: `${content.x}px`, top: `${content.y}px` }"
+          >
+            <div class="inner bg-brand">
+              <h1 style="height: 200px">Content</h1>
+            </div>
+          </div>
         </div>
-      </div>
+      </Transition>
     </Teleport>
     <slot />
   </div>
@@ -219,26 +273,33 @@ const classes = computed((): string =>
 
   &_content {
     position: fixed;
-    top: 0;
-    left: 0;
     max-width: 100%;
     max-height: 100%;
 
-    .inner {
-      margin: 4px;
+    &.top {
+      transform: translateY(-4px);
+    }
+
+    &.bottom {
+      transform: translateY(4px);
+    }
+
+    &.left {
+      transform: translateX(-4px);
+    }
+
+    &.right {
+      transform: translateX(4px);
     }
   }
 
   &_triangle {
     position: fixed;
-    top: 0;
-    left: 0;
     max-height: 0;
     max-width: 0;
-    z-index: 1000;
     border-style: solid;
     border-color: transparent;
-    border-width: 4px;
+    border-width: 8px;
 
     &.top {
       border-top-color: red;
@@ -259,6 +320,20 @@ const classes = computed((): string =>
       border-left-width: 0;
       border-right-color: red;
     }
+  }
+
+  &_container {
+    position: absolute;
+  }
+
+  &_animation-enter-active,
+  &_animation-leave-active {
+    transition: opacity 1s ease;
+  }
+
+  &_animation-enter-from,
+  &_animation-leave-to {
+    opacity: 0;
   }
 }
 </style>

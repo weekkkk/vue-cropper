@@ -1,5 +1,5 @@
 /**
  * * Позиции
  */
-import PositionEnum from './PositionEnum';
-export { PositionEnum };
+import Position from './Position';
+export { Position };

@@ -1,7 +1,12 @@
 <script lang="ts" setup>
-import
-{
-  type PropType, ref, nextTick, computed, onUnmounted, reactive, onMounted
+import {
+  type PropType,
+  ref,
+  nextTick,
+  computed,
+  onUnmounted,
+  reactive,
+  onMounted,
 } from 'vue';
 import { Color } from '../enums';
 import { Position } from './enums';
@@ -28,7 +33,7 @@ const props = defineProps({
   /**
    * * Режим тултипа
    */
-  tooltip: { type: Boolean, default: false }
+  tooltip: { type: Boolean, default: false },
 });
 /**
  * * События
@@ -74,38 +79,42 @@ const _position = ref(props.position);
 /**
  * * Клик по элементу
  */
-function focus ()
-{
-  if (visible.value && !props.tooltip)
-    close();
-  else
-  {
+function focus() {
+  if (visible.value && !props.tooltip) close();
+  else {
     if (visible.value) return;
     open();
     if (!$element.value) return;
     emit('focus', $element.value);
   }
 }
+
 /**
  * * Высчитать позицию
  */
-function calc (p: Position, about: DOMRect, rect: DOMRect, i = 0): { x: number, y: number; position: Position; }
-{
-  const bw = getComputedStyle(document.documentElement).getPropertyValue('--n-popover-tr').replace('px', '');
-  const br = getComputedStyle(document.documentElement).getPropertyValue('--n-popover-br').replace('px', '');
+function calc(
+  p: Position,
+  about: DOMRect,
+  rect: DOMRect,
+  i = 0
+): { x: number; y: number; position: Position } {
+  const bw = getComputedStyle(document.documentElement)
+    .getPropertyValue('--n-popover-tr')
+    .replace('px', '');
+  const br = getComputedStyle(document.documentElement)
+    .getPropertyValue('--n-popover-br')
+    .replace('px', '');
   const min = Number(bw) * 2 + Number(br);
   const settings = { x: 0, y: 0, position: p };
   const ignore = i == 4;
-  if (ignore)
-  {
+  if (ignore) {
     const indets = [
       about.left,
       window.innerWidth - about.right,
       about.top,
-      window.innerHeight - about.bottom
+      window.innerHeight - about.bottom,
     ];
-    switch (indets.indexOf(Math.max(...indets)))
-    {
+    switch (indets.indexOf(Math.max(...indets))) {
       case 0:
         p = Position.Left;
         break;
@@ -124,14 +133,12 @@ function calc (p: Position, about: DOMRect, rect: DOMRect, i = 0): { x: number, 
     settings.position = p;
   }
 
-  switch (p)
-  {
+  switch (p) {
     case Position.Top:
       settings.x = about.left + about.width / 2 - rect.width / 2;
       settings.y = about.top - rect.height;
 
-      if (settings.x < 0)
-        settings.x = 0;
+      if (settings.x < 0) settings.x = 0;
       else if (settings.x + rect.width > window.innerWidth)
         settings.x = window.innerWidth - rect.width;
 
@@ -147,8 +154,7 @@ function calc (p: Position, about: DOMRect, rect: DOMRect, i = 0): { x: number, 
       settings.y = about.top + about.height / 2 - rect.height / 2;
       settings.x = about.left - rect.width;
 
-      if (settings.y < 0)
-        settings.y = 0;
+      if (settings.y < 0) settings.y = 0;
       else if (settings.y + rect.height > window.innerHeight)
         settings.y = window.innerHeight - rect.height;
 
@@ -164,8 +170,7 @@ function calc (p: Position, about: DOMRect, rect: DOMRect, i = 0): { x: number, 
       settings.y = about.top + about.height / 2 - rect.height / 2;
       settings.x = about.right;
 
-      if (settings.y < 0)
-        settings.y = 0;
+      if (settings.y < 0) settings.y = 0;
       else if (settings.y + rect.height > window.innerHeight)
         settings.y = window.innerHeight - rect.height;
 
@@ -181,8 +186,7 @@ function calc (p: Position, about: DOMRect, rect: DOMRect, i = 0): { x: number, 
       settings.x = about.left + about.width / 2 - rect.width / 2;
       settings.y = about.bottom;
 
-      if (settings.x < 0)
-        settings.x = 0;
+      if (settings.x < 0) settings.x = 0;
       else if (settings.x + rect.width > window.innerWidth)
         settings.x = window.innerWidth - rect.width;
 
@@ -202,8 +206,7 @@ function calc (p: Position, about: DOMRect, rect: DOMRect, i = 0): { x: number, 
 /**
  * * Инициализация позиций элементов
  */
-async function init ()
-{
+async function init() {
   await nextTick();
   if (!$element.value || !$content.value) return;
 
@@ -225,39 +228,33 @@ async function init ()
 /**
  * * При загрузке компонента
  */
-onMounted(() =>
-{
+onMounted(() => {
   if (!$element.value || !props.tooltip) return;
   $element.value.addEventListener('mouseover', focus);
 });
 /**
  * * Открыть
  */
-async function open ()
-{
+async function open() {
   if (visible.value) return;
   visible.value = true;
   await init();
   window.addEventListener('click', click);
-  if (props.tooltip && $element.value && $inner.value)
-  {
+  if (props.tooltip && $element.value && $inner.value) {
     $element.value.addEventListener('mouseout', mouseout);
     $inner.value.addEventListener('mouseout', mouseout);
   }
   await nextTick();
-  if ($inner.value)
-    emit('open', $inner.value);
+  if ($inner.value) emit('open', $inner.value);
 }
 /**
  * * Закрыть
  */
-function close ()
-{
+function close() {
   if (!visible.value) return;
   visible.value = false;
   window.removeEventListener('click', click);
-  if (props.tooltip && $element.value && $inner.value)
-  {
+  if (props.tooltip && $element.value && $inner.value) {
     $element.value.removeEventListener('mouseout', mouseout);
     $inner.value.removeEventListener('mouseout', mouseout);
   }
@@ -267,28 +264,34 @@ function close ()
 /**
  * * Убрать фокус
  */
-function blur (target: HTMLElement)
-{
-  if (!target ||
-    !$inner.value || $inner.value == target || $inner.value.contains(target) ||
-    !$element.value || $element.value == target || $element.value.contains(target) ||
-    !$triangle.value || $triangle.value == target || $triangle.value.contains(target)) return;
+function blur(target: HTMLElement) {
+  if (
+    !target ||
+    !$inner.value ||
+    $inner.value == target ||
+    $inner.value.contains(target) ||
+    !$element.value ||
+    $element.value == target ||
+    $element.value.contains(target) ||
+    !$triangle.value ||
+    $triangle.value == target ||
+    $triangle.value.contains(target)
+  )
+    return;
   emit('blur', target);
   close();
 }
 /**
  * * Блюр щелчком
  */
-function click (e: Event)
-{
+function click(e: Event) {
   const target = e.target as HTMLElement;
   blur(target);
 }
 /**
  * * Блюр наведением
  */
-function mouseout (e: MouseEvent)
-{
+function mouseout(e: MouseEvent) {
   const target = e.relatedTarget as HTMLElement;
   blur(target);
 }
@@ -301,18 +304,16 @@ onUnmounted(close);
  */
 defineExpose({
   open,
-  close
+  close,
 });
 /**
  * * Цвет
  */
-const _color = computed((): string =>
-{
+const _color = computed((): string => {
   const prefix = '--n-';
   const postfix = props.color == Color.Second ? '-100' : '';
-  return `var(${ prefix }${ props.color }${ postfix })`;
-}
-);
+  return `var(${prefix}${props.color}${postfix})`;
+});
 </script>
 
 <template>

@@ -8,8 +8,7 @@ const pos = ref(Position.Right);
 const positions = Object.values(Position);
 
 const popover = ref<InstanceType<typeof NPopover>>();
-onMounted(() =>
-{
+onMounted(() => {
   console.log(NPopover);
   console.log(popover.value);
   console.log('onMounted');

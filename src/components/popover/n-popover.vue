@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import
 {
-  type PropType, ref, nextTick, computed, onUnmounted, reactive,
+  type PropType, ref, nextTick, computed, onUnmounted, reactive, onMounted
 } from 'vue';
 import { Color } from '../enums';
 import { Position } from './enums';
@@ -25,6 +25,10 @@ const props = defineProps({
    * * Классы
    */
   classes: { type: String, default: '' },
+  /**
+   * * Режим тултипа
+   */
+  tooltip: { type: Boolean, default: true }
 });
 /**
  * * События
@@ -48,6 +52,10 @@ const $element = ref<HTMLElement>();
  */
 const $content = ref<HTMLElement>();
 /**
+ * * Внутри
+ */
+const $inner = ref<HTMLElement>();
+/**
  * * Треугольник
  */
 const $triangle = ref<HTMLElement>();
@@ -66,12 +74,13 @@ const _position = ref(props.position);
 /**
  * * Клик по элементу
  */
-function click ()
+function focus ()
 {
-  if (visible.value)
+  if (visible.value && !props.tooltip)
     close();
   else
   {
+    if (visible.value) return;
     open();
     if (!$element.value) return;
     emit('focus', $element.value);
@@ -214,13 +223,27 @@ async function init ()
   triangle.y = triangleSettings.y;
 }
 /**
+ * * При загрузке компонента
+ */
+onMounted(() =>
+{
+  if (!$element.value || !props.tooltip) return;
+  $element.value.addEventListener('mouseover', focus);
+});
+/**
  * * Открыть
  */
 async function open ()
 {
+  if (visible.value) return;
   visible.value = true;
   await init();
-  window.addEventListener('click', blur);
+  window.addEventListener('click', click);
+  if (props.tooltip && $element.value && $inner.value)
+  {
+    $element.value.addEventListener('mouseout', mouseout);
+    $inner.value.addEventListener('mouseout', mouseout);
+  }
   await nextTick();
   if ($content.value)
     emit('open', $content.value);
@@ -230,32 +253,49 @@ async function open ()
  */
 function close ()
 {
+  if (!visible.value) return;
   visible.value = false;
-  window.removeEventListener('click', blur);
+  window.removeEventListener('click', click);
+  if (props.tooltip && $element.value && $inner.value)
+  {
+    $element.value.removeEventListener('mouseout', mouseout);
+    $inner.value.removeEventListener('mouseout', mouseout);
+  }
   if (!$content.value) return;
   emit('close', $content.value);
 }
 /**
  * * Убрать фокус
  */
-function blur (e: Event)
+function blur (target: HTMLElement)
 {
-  const target = e.target as HTMLElement;
   if (!target ||
-    !$content.value || $content.value == target || $content.value.contains(target) ||
+    !$inner.value || $inner.value == target || $inner.value.contains(target) ||
     !$element.value || $element.value == target || $element.value.contains(target) ||
     !$triangle.value || $triangle.value == target || $triangle.value.contains(target)) return;
   emit('blur', target);
   close();
 }
 /**
+ * * Блюр щелчком
+ */
+function click (e: Event)
+{
+  const target = e.target as HTMLElement;
+  blur(target);
+}
+/**
+ * * Блюр наведением
+ */
+function mouseout (e: MouseEvent)
+{
+  const target = e.relatedTarget as HTMLElement;
+  blur(target);
+}
+/**
  * * При разрушении компонента
  */
-onUnmounted(() =>
-{
-  console.log('onUnmounted');
-  close();
-});
+onUnmounted(close);
 /**
  * * Поделиться с родителем
  */
@@ -276,7 +316,7 @@ const _color = computed((): string =>
 </script>
 
 <template>
-  <div class="n-popover_element bg-second-40" ref="$element" @click="click">
+  <div class="n-popover_element bg-second-40" ref="$element" @click="focus">
     <Teleport to="body">
       <Transition name="n-popover_animation">
         <div
@@ -298,6 +338,7 @@ const _color = computed((): string =>
             :style="{ left: `${content.x}px`, top: `${content.y}px` }"
           >
             <div
+              ref="$inner"
               class="inner"
               :class="[_position, color]"
               :style="{

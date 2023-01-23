@@ -8,10 +8,12 @@ const pos = ref(Position.Right);
 const positions = Object.values(Position);
 
 const popover = ref<InstanceType<typeof NPopover>>();
-onMounted(() => {
+onMounted(() =>
+{
+  console.log(NPopover);
   console.log(popover.value);
   console.log('onMounted');
-  popover.value?.open();
+  // popover.value?.open();
 });
 function onOpen(target: HTMLElement) {
   console.log('open', target);
@@ -57,11 +59,13 @@ function fm() {
     @close="onClose"
     @focus="onFocus"
     @blur="onBlur"
-    :color="Color.Default"
+    :color="Color.Brand"
     :position="pos"
   >
     <h2>Element</h2>
-    <template #content> T </template>
+    <template #content>
+      <h1>Bold</h1>
+    </template>
   </NPopover>
 
   <img height="1000" />

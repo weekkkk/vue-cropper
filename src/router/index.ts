@@ -1,5 +1,9 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
-import { Main } from './modules';
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from 'vue-router';
+import { Main, Drag } from './modules';
 const routes: Array<RouteRecordRaw> = [
   {
     name: '',
@@ -11,6 +15,10 @@ const routes: Array<RouteRecordRaw> = [
        * * Главная страница
        */
       Main,
+      /**
+       * * Элемент для перетаскивания
+       */
+      Drag,
     ],
   },
 ];

@@ -2,4 +2,8 @@
  * * Главная
  */
 import Main from './main';
-export { Main };
+/**
+ * * Элемент для перетаскивания
+ */
+import Drag from './drag';
+export { Main, Drag };

@@ -28,7 +28,7 @@ const props = defineProps({
   /**
    * * Режим тултипа
    */
-  tooltip: { type: Boolean, default: true }
+  tooltip: { type: Boolean, default: false }
 });
 /**
  * * События
@@ -245,8 +245,8 @@ async function open ()
     $inner.value.addEventListener('mouseout', mouseout);
   }
   await nextTick();
-  if ($content.value)
-    emit('open', $content.value);
+  if ($inner.value)
+    emit('open', $inner.value);
 }
 /**
  * * Закрыть
@@ -261,8 +261,8 @@ function close ()
     $element.value.removeEventListener('mouseout', mouseout);
     $inner.value.removeEventListener('mouseout', mouseout);
   }
-  if (!$content.value) return;
-  emit('close', $content.value);
+  if (!$inner.value) return;
+  emit('close', $inner.value);
 }
 /**
  * * Убрать фокус

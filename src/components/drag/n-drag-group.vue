@@ -29,7 +29,6 @@ const swap: IFunction = (fromIndex, toIndex, elements) => {
   const toValue = elements[toIndex];
   elements[fromIndex] = toValue;
   elements[toIndex] = fromValue;
-
   console.log('swap', { fromIndex, toIndex, elements });
   return elements;
 };
@@ -45,22 +44,63 @@ const props = defineProps({
   /**
    * * Тип изменения
    */
-  type: { type: String as PropType<EType>, default: EType.Insert },
+  type: { type: String as PropType<EType>, default: EType.Swap },
   /**
    * * Значения
    */
-  ids: { type: Array as PropType<number[]>, default: [] },
+  els: { type: Array as PropType<{ Id: number }[]>, default: [] },
+  /**
+   * * Кол-во колонок
+   */
+  columns: { type: Number, default: 3 },
   /**
    * * Классы элементов группы
    */
   classes: { type: String, default: '' },
   /**
-   * * Кол-во колонок
+   * * Классы элемента, при перетаскивании его копии
    */
-  columns: { type: Number, default: 3 },
+  dragClass: { type: String, default: '' },
+  /**
+   * * Классы клона, который перетаскиваем
+   */
+  grabbingClass: { type: String, default: '' },
+  /**
+   * * Классы элемента на который дропают текщий
+   */
+  droppadleClass: { type: String, default: '' },
 });
 
-const _ids = ref(props.ids.slice());
+/**
+ * * События
+ */
+const emit = defineEmits<{
+  (e: 'update:els', els: { Id: number }[]): void;
+  (
+    e: 'drop',
+    fromId: number | undefined,
+    toId: number | undefined,
+    targetFrom: HTMLElement | undefined,
+    targetTo: HTMLElement | undefined
+  ): void;
+}>();
+
+/**
+ * * ID элементов
+ */
+const ids = computed({
+  get: (): number[] => props.els.map((el) => el.Id),
+  set: (value: number[]) => {
+    emit(
+      'update:els',
+      value.map((id) => props.els.find((el) => el.Id == id) || { Id: -1 }) || []
+    );
+  },
+});
+/**
+ * * Копия ID элементов
+ */
+const _ids = ref(ids.value.slice());
 
 /**
  * * ID перемещаемого элемента
@@ -69,6 +109,10 @@ const fromId = ref<number>();
 const fromIndex = computed(() =>
   fromId.value != undefined ? _ids.value.indexOf(fromId.value) : undefined
 );
+/**
+ * * Элемент, который перемещают
+ */
+const fromElement = ref<HTMLElement>();
 /**
  * * ID элемента на место которого перемещают
  */
@@ -90,6 +134,7 @@ function start(target: HTMLElement | undefined, id: number) {
   const index = _ids.value.indexOf(id);
   if (index == -1) return;
   fromId.value = id;
+  fromElement.value = target;
   console.log('start', { target, id, index });
 }
 
@@ -102,24 +147,21 @@ function enter(target: HTMLElement | undefined, id: number) {
   if (fromId.value == undefined || fromIndex.value == undefined) return;
   const index = _ids.value.indexOf(id);
 
+  if (target && target.classList.contains('droppable-no-insert')) {
+    toElement.value = target;
+    toId.value = id;
+  }
+
   if (
     index == -1 ||
     id == fromId.value ||
-    id == toId.value ||
     (index == fromIndex.value - 1 &&
       target?.classList.contains('separator') &&
       !target?.classList.contains('left'))
   )
     return;
   toId.value = id;
-
-  if (target?.classList.contains('separator')) {
-    toElement.value?.classList.remove('insert');
-    toElement.value = target;
-    toElement.value?.classList.add('insert');
-  } else {
-    toElement.value = target;
-  }
+  toElement.value = target;
 
   console.log('enter', { target, id, index });
 
@@ -132,11 +174,11 @@ function enter(target: HTMLElement | undefined, id: number) {
  * @param id - ID элемента, с которого ушли
  */
 function leave(target: HTMLElement | undefined, id: number) {
-  if (props.mode == EMode.Live) return;
+  if (props.mode == EMode.Live || id == fromId.value) return;
+  console.log('leave', target, id);
   toId.value = undefined;
-  toElement.value?.classList.remove('insert');
   toElement.value = undefined;
-  _ids.value = props.ids.slice(0);
+  _ids.value = ids.value.slice(0);
 }
 
 /**
@@ -145,16 +187,24 @@ function leave(target: HTMLElement | undefined, id: number) {
  * @param id - ID элемента
  */
 function stop(target: HTMLElement | undefined, id: number) {
-  action();
+  console.log('stop');
+  if (
+    toElement.value &&
+    !toElement.value.classList.contains('droppable-no-insert') &&
+    toId.value != undefined
+  ) {
+    action();
+  }
+  emit('drop', fromId.value, toId.value, fromElement.value, toElement.value);
+
   toId.value = undefined;
   fromId.value = undefined;
-  toElement.value?.classList.remove('insert');
   toElement.value = undefined;
-  // leave(target, id);
+  ids.value = _ids.value;
 }
 
 /**
- * * Действия выбполняемые после инициализации fromIndex и toIndex
+ * * Действия выбполняемые в зависимости от mode и type
  */
 function action() {
   if (
@@ -183,11 +233,9 @@ function action() {
       return;
     case EType.Swap:
       const _fromIndex = fromIndex.value;
-      const _toIndex = toIndex.value;
-      console.log({ from: fromId.value, to: toId.value });
-      _ids.value = props.ids.slice(0);
-      if (_ids.value.indexOf(fromId.value) == _toIndex) return;
-      swap(_fromIndex, _toIndex, _ids.value);
+      _ids.value = ids.value.slice(0);
+      if (_fromIndex == toIndex.value) return;
+      swap(fromIndex.value, toIndex.value, _ids.value);
       return;
   }
 }
@@ -200,12 +248,14 @@ function action() {
     class="n-drag-group"
     :class="[type, mode]"
   >
-    <template v-for="(id, index) in _ids" :key="index" :data-index="index">
+    <template v-for="(id, index) in _ids" :key="id" :data-index="index">
       <div
         v-if="
           type == EType.Insert && mode == EMode.Record && index % columns == 0
         "
+        :key="`separator left ${id}`"
         class="separator droppable left"
+        :class="{ active: id != fromId }"
         :id="id.toString()"
       />
       <NDrag
@@ -214,20 +264,28 @@ function action() {
         @enter="enter"
         @leave="leave"
         :id="id.toString()"
-        classes="n-drag-group_element"
+        :classes="`n-drag-group_element ${classes}`"
         :class="[
           {
             droppable: !(type == EType.Insert && mode == EMode.Record),
+            'droppable-no-insert': type == EType.Insert && mode == EMode.Record,
           },
-          classes,
         ]"
+        :drag-class="dragClass"
+        :droppable-class="droppadleClass"
+        :droppable-classes="['droppable', 'droppable-no-insert']"
+        :grabbing-class="grabbingClass"
       >
-        <slot :id="id" :index="index" />
+        <slot :id="id" :index="index" :el="els.find((el) => el.Id == id)" />
       </NDrag>
       <div
+        :key="`separator right ${id}`"
         v-if="type == EType.Insert && mode == EMode.Record"
         :id="id.toString()"
-        class="separator droppable"
+        class="separator droppable right"
+        :class="{
+          active: id != fromId && fromIndex != undefined && id != fromIndex - 1,
+        }"
       />
     </template>
   </TransitionGroup>
@@ -262,27 +320,24 @@ function action() {
   }
 
   &_element {
-    border: 2px solid blue;
     overflow: hidden;
     width: calc((100% - $cg * $columns - $cg) / $columns);
-    height: 100px;
-    background: gray;
-    opacity: 0.3;
+    // height: 100px;
+    // opacity: 0.3;
+    // border: 2px solid blue;
+    // background: gray;
   }
 
   .separator {
+    height: 80px;
+    z-index: 2;
     width: $cg;
-    height: 50px;
-    background-color: gray;
-    &.insert {
-      background-color: red;
-    }
   }
 
   &_anim-move,
   &_anim-enter-active,
   &_anim-leave-active {
-    // transition: transform 2s ease;
+    transition: transform 2s ease;
   }
 
   &_anim-enter-from,

@@ -1,33 +1,81 @@
 <script lang="ts" setup>
-import { ref, computed, watch, nextTick } from 'vue';
+import { type PropType, ref, nextTick } from 'vue';
 
+/**
+ * * Свойства
+ */
 const props = defineProps({
+  /**
+   * * ID элемента
+   */
   id: { type: String, default: undefined },
+  /**
+   * * Классы элемента и его копии
+   */
   classes: { type: String, default: '' },
+  /**
+   * * Классы элемента, при перетаскивании его копии
+   */
+  dragClass: { type: String, default: '' },
+  /**
+   * * Классы клона, который перетаскиваем
+   */
+  grabbingClass: { type: String, default: '' },
+  /**
+   * * Классы элемента на который дропают текщий
+   */
+  droppableClass: { type: String, default: '' },
+  /**
+   * * Классы элементов на который дропается текщий
+   */
+  droppableClasses: {
+    type: Array as PropType<string[]>,
+    default: ['droppable'],
+  },
 });
-
+/**
+ * * Элемент
+ */
 const $el = ref<HTMLElement>();
+/**
+ * * Клон, который перетаскиваем
+ */
 const $grabbing = ref<HTMLElement>();
+/**
+ * * Позиция элемента
+ */
 const rect = ref<DOMRect>();
 
-const $abs = ref<HTMLElement>();
-
+/**
+ * * Перетаскивается ли элемент
+ */
 const isDrag = ref(false);
+/**
+ * * Начальные координаты
+ */
 const sx = ref(0);
 const sy = ref(0);
-
+/**
+ * * Текущие координаты курсора
+ */
 const x = ref(0);
 const y = ref(0);
-
+/**
+ * * События
+ */
 const emit = defineEmits<{
   (e: 'start', target: HTMLElement | undefined, id: number): void;
   (e: 'stop', target: HTMLElement | undefined, id: number): void;
   (e: 'enter', target: HTMLElement | undefined, id: number): void;
   (e: 'leave', target: HTMLElement | undefined | undefined, id: number): void;
 }>();
-
-const to = ref<HTMLElement>();
-
+/**
+ * * Элемент для дропа
+ */
+const droppable = ref<HTMLElement>();
+/**
+ * * Перетаскивание мышью
+ */
 function mousedown(e: MouseEvent) {
   if (isDrag.value) return;
 
@@ -50,6 +98,11 @@ function mouseup(e: MouseEvent) {
   stop(e.clientX, e.clientY);
 }
 
+/**
+ * * Начало перетаскивания
+ * @param cx - clientX
+ * @param cy - clientY
+ */
 async function start(cx: number, cy: number) {
   if (isDrag.value || !$el.value) return;
 
@@ -66,37 +119,74 @@ async function start(cx: number, cy: number) {
 
   isDrag.value = true;
 }
+/**
+ * * Перетаскивание
+ * @param cx - clientX
+ * @param cy - clientY
+ */
 function drag(cx: number, cy: number) {
   if (!isDrag.value || !$grabbing.value) return;
 
   x.value = cx;
   y.value = cy;
 
+  if (y.value < 0 && window.scrollY > 0) {
+    window.scrollTo(0, window.scrollY + y.value);
+    y.value = 0;
+  } else if (y.value > window.innerHeight) {
+    window.scrollTo(0, window.scrollY + (y.value - window.innerHeight));
+    y.value = window.innerHeight;
+  }
+
   $grabbing.value.style.overflow = 'hidden';
   const el = document.elementFromPoint(x.value, y.value) as HTMLElement;
   $grabbing.value.style.overflow = 'visible';
 
   if (!el) return;
-  const droppable = el.closest('.droppable') as HTMLElement;
-  if (droppable && droppable != $el.value) {
-    if (droppable != to.value) {
-      to.value = droppable;
-      emit('enter', to.value, Number(to.value.id));
+
+  let _droppable: HTMLElement | undefined;
+  props.droppableClasses.forEach((cls) => {
+    const _el = el.closest(`.${cls}`) as HTMLElement;
+    if (_el) {
+      _droppable = _el;
     }
-  } else if (to.value) {
-    emit('leave', el, Number((to.value as Element).id));
-    to.value = undefined;
+  });
+  if (_droppable && _droppable != $el.value) {
+    if (_droppable != droppable.value) {
+      if (droppable.value != _droppable && props.droppableClass)
+        droppable.value?.classList.remove(props.droppableClass);
+      droppable.value = _droppable;
+      if (props.droppableClass) {
+        droppable.value?.classList.add(props.droppableClass);
+      }
+      emit('enter', droppable.value, Number(droppable.value.id));
+    }
+  } else if (droppable.value) {
+    emit('leave', el, Number((droppable.value as Element).id));
+    if (props.droppableClass)
+      droppable.value?.classList.remove(props.droppableClass);
+    droppable.value = undefined;
   }
 }
+/**
+ * * Остановка перетаскивания
+ * @param cx - clientX
+ * @param cy - clientY
+ */
 function stop(cx: number, cy: number) {
   if (!isDrag.value) return;
-  if (to.value) emit('stop', $el.value, Number((to.value as Element).id));
+  if (droppable.value)
+    emit('stop', $el.value, Number((droppable.value as Element).id));
 
   sx.value = 0;
   sy.value = 0;
 
   x.value = 0;
   y.value = 0;
+
+  if (props.droppableClass)
+    droppable.value?.classList.remove(props.droppableClass);
+  droppable.value = undefined;
 
   isDrag.value = false;
 }
@@ -106,7 +196,7 @@ function stop(cx: number, cy: number) {
   <span
     class="n-drag"
     :id="id"
-    :class="[classes, { dragged: isDrag }]"
+    :class="[classes, { dragged: isDrag }, isDrag ? dragClass : '']"
     ref="$el"
     @mousedown.prevent="mousedown"
   >
@@ -123,7 +213,7 @@ function stop(cx: number, cy: number) {
       >
         <span
           class="n-drag"
-          :class="[classes]"
+          :class="[classes, grabbingClass]"
           :style="{
             width: `${rect?.width}px`,
             height: `${rect?.height}px`,
@@ -143,9 +233,6 @@ function stop(cx: number, cy: number) {
   display: inline-flex;
   cursor: grab;
   position: relative;
-  &.dragged {
-    opacity: 0.5;
-  }
   &_grabbing {
     display: inline-flex;
     cursor: grabbing;
@@ -156,7 +243,6 @@ function stop(cx: number, cy: number) {
       position: absolute;
       left: 0;
       top: 0;
-      opacity: 0.2;
     }
   }
 }

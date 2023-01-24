@@ -1,5 +1,25 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { ref } from 'vue';
+import NDragGroup from '@/components/drag/n-drag-group.vue';
 
-<template>Drag</template>
+const ids = ref<number[]>([]);
+for (let i = 0; i < 10; i++) {
+  ids.value.push(i);
+}
+</script>
 
-<style lang="less" scoped></style>
+<template>
+  <NDragGroup :ids="ids" classes="group_el">
+    <template #default="slot">
+      <h1>{{ slot.id }}</h1>
+    </template>
+  </NDragGroup>
+</template>
+
+<style lang="scss" scoped>
+.group {
+  &_el {
+    width: calc(100% / 5);
+  }
+}
+</style>

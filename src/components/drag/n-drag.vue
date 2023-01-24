@@ -19,7 +19,12 @@ const sy = ref(0);
 const x = ref(0);
 const y = ref(0);
 
-const emit = defineEmits(['start', 'drag', 'enter', 'leave', 'stop']);
+const emit = defineEmits<{
+  (e: 'start', target: HTMLElement | undefined, id: number): void;
+  (e: 'stop', target: HTMLElement | undefined, id: number): void;
+  (e: 'enter', target: HTMLElement | undefined, id: number): void;
+  (e: 'leave', target: HTMLElement | undefined | undefined, id: number): void;
+}>();
 
 const to = ref<HTMLElement>();
 
@@ -51,7 +56,7 @@ async function start(cx: number, cy: number) {
   await nextTick();
   rect.value = $el.value.getBoundingClientRect();
 
-  emit('start', { target: $el.value, id: Number(props.id) });
+  emit('start', $el.value, Number(props.id));
 
   sx.value = cx;
   sy.value = cy;
@@ -68,7 +73,7 @@ function drag(cx: number, cy: number) {
   y.value = cy;
 
   $grabbing.value.style.overflow = 'hidden';
-  const el = document.elementFromPoint(x.value, y.value);
+  const el = document.elementFromPoint(x.value, y.value) as HTMLElement;
   $grabbing.value.style.overflow = 'visible';
 
   if (!el) return;
@@ -76,19 +81,16 @@ function drag(cx: number, cy: number) {
   if (droppable && droppable != $el.value) {
     if (droppable != to.value) {
       to.value = droppable;
-      emit('enter', { target: to.value, id: Number(to.value.id) });
+      emit('enter', to.value, Number(to.value.id));
     }
   } else if (to.value) {
-    emit('leave', {
-      target: el,
-      id: Number(to.value.id),
-    });
+    emit('leave', el, Number((to.value as Element).id));
     to.value = undefined;
   }
 }
 function stop(cx: number, cy: number) {
   if (!isDrag.value) return;
-  emit('stop', $el.value);
+  if (to.value) emit('stop', $el.value, Number((to.value as Element).id));
 
   sx.value = 0;
   sy.value = 0;
@@ -102,7 +104,7 @@ function stop(cx: number, cy: number) {
 
 <template>
   <span
-    class="tir-drag"
+    class="n-drag"
     :id="id"
     :class="[classes, { dragged: isDrag }]"
     ref="$el"
@@ -113,14 +115,14 @@ function stop(cx: number, cy: number) {
       <span
         v-if="isDrag"
         ref="$grabbing"
-        class="grabbing"
+        class="n-drag_grabbing"
         :style="{
           top: `calc(${y}px)`,
           left: `calc(${x}px)`,
         }"
       >
         <span
-          class="tir-drag"
+          class="n-drag"
           :class="[classes]"
           :style="{
             width: `${rect?.width}px`,
@@ -136,26 +138,26 @@ function stop(cx: number, cy: number) {
   </span>
 </template>
 
-<style lang="less">
-.tir-drag {
+<style lang="scss">
+.n-drag {
   display: inline-flex;
   cursor: grab;
   position: relative;
   &.dragged {
     opacity: 0.5;
   }
-}
-.grabbing {
-  display: inline-flex;
-  cursor: grabbing;
-  position: fixed;
-  max-width: 0;
-  max-height: 0;
-  .tir-drag {
-    position: absolute;
-    left: 0;
-    top: 0;
-    opacity: 0.2;
+  &_grabbing {
+    display: inline-flex;
+    cursor: grabbing;
+    position: fixed;
+    max-width: 0;
+    max-height: 0;
+    .n-drag {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0.2;
+    }
   }
 }
 </style>

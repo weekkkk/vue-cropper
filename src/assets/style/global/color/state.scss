@@ -2,7 +2,7 @@
   --n-brand: #84dcc6;
   --n-success: #90dc84;
   --n-warn: #ead66c;
-  --n-error: #dc8484;
+  --n-danger: #dc8484;
   --n-base: #222222;
   --n-default: #ffffff;
 
@@ -24,11 +24,11 @@
   .bg-warn {
     background-color: var(--n-warn);
   }
-  .c-error {
-    color: var(--n-error);
+  .c-danger {
+    color: var(--n-danger);
   }
-  .bg-error {
-    background-color: var(--n-error);
+  .bg-danger {
+    background-color: var(--n-danger);
   }
   .c-base {
     color: var(--n-base);

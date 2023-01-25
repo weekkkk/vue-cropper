@@ -1,17 +1,9 @@
 /**
- * * Пропс для таблицы описания
+ * * Запись в таблице информации об элементе
  */
-import Prop from './Prop';
+import Info from './Info';
 /**
- * * Событие для таблицы описания
+ * * Тип
  */
-import Emit from './Emit';
-/**
- * * Слот для таблицы описания
- */
-import Slot from './Slot';
-/**
- * * Слот для таблицы описания
- */
-import Exposing from './Exposing';
-export { Prop, Emit, Slot, Exposing };
+import Type from './Type';
+export { Info, Type };

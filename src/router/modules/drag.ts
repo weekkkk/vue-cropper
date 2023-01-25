@@ -1,5 +1,16 @@
 import type { RouteRecordRaw } from 'vue-router';
 import { DRAG } from './names';
+import { Info as Slot } from '@/models';
+/**
+ * * Слоты
+ */
+const slots = [
+  new Slot({
+    Name: 'default',
+    Description: 'Контент элемента',
+  }),
+];
+
 /**
  * * Элемент для перетаскивания
  */

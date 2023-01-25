@@ -346,7 +346,7 @@ const _color = computed((): string => {
             <div
               ref="$inner"
               class="inner"
-              :class="[_position, color]"
+              :class="[_position, color, classes]"
               :style="{
                 width,
               }"

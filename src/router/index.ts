@@ -33,3 +33,10 @@ const router = createRouter({
 });
 export { routes };
 export default router;
+
+router.beforeEach(async (to, from, next) => {
+  const { Title } = to.meta;
+  const brand = '@n-';
+  document.title = `${brand}${(Title as string).toLowerCase()}`;
+  next();
+});

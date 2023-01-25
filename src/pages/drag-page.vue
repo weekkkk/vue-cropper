@@ -2,48 +2,87 @@
 // import NDragGroup from '@/components/drag/n-drag-group.vue';
 // import { EMode, EType } from '@/components/drag/enums';
 // import { ref } from 'vue';
-import { Prop } from '@/models';
+import { Prop, Emit } from '@/models';
 
 import NDrag from '@/components/drag/n-drag.vue';
+import InfoTable from '@/components/info-table.vue';
+
+function alphabet(a: { Name: string }, b: { Name: string }) {
+  var nameA = a.Name.toLowerCase(),
+    nameB = b.Name.toLowerCase();
+  if (nameA < nameB)
+    //сортируем строки по возрастанию
+    return -1;
+  if (nameA > nameB) return 1;
+  return 0; // Никакой сортировки
+}
 
 const props = [
   new Prop({
     Name: 'id',
-    Type: 'string',
-    Default: 'undefined',
-    Description: 'id элемента',
+    Type: 'number',
+    Default: '-1',
+    Description: 'ID элемента',
   }),
   new Prop({
-    Name: 'id',
+    Name: 'classes',
     Type: 'string',
-    Default: 'undefined',
-    Description: 'id элемента',
+    Default: "''",
+    Description: 'Классы элемента и его копии',
   }),
-];
+  new Prop({
+    Name: 'dragClass',
+    Type: 'string',
+    Default: "''",
+    Description: 'Класс элемента, при перетаскивании его копии',
+  }),
+  new Prop({
+    Name: 'grabbingClass',
+    Type: 'string',
+    Default: "''",
+    Description: 'Класс клона, который перетаскиваем',
+  }),
+  new Prop({
+    Name: 'droppableClass',
+    Type: 'string',
+    Default: "''",
+    Description: 'Класс элемента на который дропают текщий',
+  }),
+  new Prop({
+    Name: 'droppableClasses',
+    Type: 'string[]',
+    Default: "['droppable']",
+    Description: 'Классы элементов на которые может дропаться текщий',
+  }),
+].sort(alphabet);
+
+const emits = [
+  new Emit({
+    Name: 'start',
+    Description: 'Начало перетаскивания',
+    Type: '(target: HTMLElement | undefined, id: number) => any',
+  }),
+].sort(alphabet);
 </script>
 
 <template>
-  <section class="f fd-col">
+  <section class="info f fd-col rg-3">
     <h4 class="c-brand">#props</h4>
 
-    <table class="ta-l fw-medium">
-      <tr class="c-second-100">
-        <th>name</th>
-        <th>type</th>
-        <th>default</th>
-        <th>description</th>
-      </tr>
-
-      <tr v-for="prop in props" :key="prop.Name">
-        <td>{{ prop.Name }}</td>
-        <td class="c-danger">{{ prop.Type }}</td>
-        <td class="c-brand">{{ prop.Default }}</td>
-        <td>{{ prop.Description }}</td>
-      </tr>
-    </table>
+    <InfoTable :rows="props" />
   </section>
 
-  <NDrag />
+  <section class="info f fd-col rg-3">
+    <h4 class="c-brand">#emits</h4>
+
+    <InfoTable :rows="emits" />
+  </section>
+
+  <NDrag @start='' @enter='' />
 </template>
 
-<style lang="scss"></style>
+<style lang="scss">
+section.info {
+  overflow: auto;
+}
+</style>

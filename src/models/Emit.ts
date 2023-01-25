@@ -2,16 +2,12 @@ import InfoRow from './InfoRow';
 /**
  * * Пропс для таблицы описания компонента
  */
-export default class Prop extends InfoRow {
+export default class Emit extends InfoRow {
   /**
-   * * Тип
+   * * Какие значения возвращает
    */
   Type: string = 'fill type!';
-  /**
-   * * Значение по умолчанию
-   */
-  Default: string = 'fill default!';
-  constructor(obj?: Partial<Prop>) {
+  constructor(obj?: Partial<Emit>) {
     super();
     if (obj) Object.assign(this, obj);
   }

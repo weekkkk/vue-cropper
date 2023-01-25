@@ -8,25 +8,25 @@ const props = defineProps({
   /**
    * * ID элемента
    */
-  id: { type: String, default: undefined },
+  id: { type: Number, default: -1 },
   /**
    * * Классы элемента и его копии
    */
   classes: { type: String, default: '' },
   /**
-   * * Классы элемента, при перетаскивании его копии
+   * * Класс элемента, при перетаскивании его копии
    */
   dragClass: { type: String, default: '' },
   /**
-   * * Классы клона, который перетаскиваем
+   * * Класс клона, который перетаскиваем
    */
   grabbingClass: { type: String, default: '' },
   /**
-   * * Классы элемента на который дропают текщий
+   * * Класс элемента на который дропают текщий
    */
   droppableClass: { type: String, default: '' },
   /**
-   * * Классы элементов на который дропается текщий
+   * * Классы элементов на которые может дропаться текщий
    */
   droppableClasses: {
     type: Array as PropType<string[]>,
@@ -195,7 +195,7 @@ function stop(cx: number, cy: number) {
 <template>
   <span
     class="n-drag"
-    :id="id"
+    :id="id?.toString()"
     :class="[classes, { dragged: isDrag }, isDrag ? dragClass : '']"
     ref="$el"
     @mousedown.prevent="mousedown"

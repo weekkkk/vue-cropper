@@ -263,7 +263,7 @@ function action() {
         @stop="stop"
         @enter="enter"
         @leave="leave"
-        :id="id.toString()"
+        :id="id"
         :classes="`n-drag-group_element ${classes}`"
         :class="[
           {

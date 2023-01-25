@@ -1,7 +1,7 @@
 <template>
   <div class="base-layout f jc-c bg-second-0">
-    <div class="inner f cg-4 p-4">
-      <!-- <sidebar-layout></sidebar-layout> -->
+    <div class="inner f cg-3 p-4">
+      <sidebar-layout></sidebar-layout>
       <div class="container f fd-col px-3 pb-3 rg-3 bg-default">
         <h4 class="c-brand bb py-3">@{{ (route.meta?.Title as string).toLowerCase() }}</h4>
         <router-view></router-view>

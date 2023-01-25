@@ -1,7 +1,7 @@
 /**
- * * Событие для таблицы описания компонента
+ * * Доступные свойства элемента для таблицы описания
  */
-export default class Emit {
+export default class Exposed {
   /**
    * * Название
    */
@@ -18,7 +18,7 @@ export default class Emit {
    * * Полный тип
    */
   FullType: string = 'fill type!';
-  constructor(obj?: Partial<Emit>) {
+  constructor(obj?: Partial<Exposed>) {
     if (obj) Object.assign(this, obj);
   }
 }

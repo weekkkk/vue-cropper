@@ -1,4 +1,8 @@
-export default class InfoRow {
+/**
+ * Слот для таблицы описания
+ */
+export default class Slot
+{
   /**
    * * Название
    */
@@ -7,7 +11,7 @@ export default class InfoRow {
    * * Описание
    */
   Description: string = 'fill description!';
-  constructor(obj?: Partial<InfoRow>) {
+  constructor(obj?: Partial<Slot>) {
     if (obj) Object.assign(this, obj);
   }
 }

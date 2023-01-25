@@ -67,7 +67,7 @@ const emit = defineEmits<{
   (e: 'start', target: HTMLElement | undefined, id: number): void;
   (e: 'stop', target: HTMLElement | undefined, id: number): void;
   (e: 'enter', target: HTMLElement | undefined, id: number): void;
-  (e: 'leave', target: HTMLElement | undefined | undefined, id: number): void;
+  (e: 'leave', target: HTMLElement | undefined, id: number): void;
 }>();
 /**
  * * Элемент для дропа
@@ -95,7 +95,7 @@ function mouseup(e: MouseEvent) {
   window.removeEventListener('mousemove', mousemove);
   window.removeEventListener('mouseup', mouseup);
 
-  stop(e.clientX, e.clientY);
+  stop();
 }
 
 /**
@@ -170,13 +170,11 @@ function drag(cx: number, cy: number) {
 }
 /**
  * * Остановка перетаскивания
- * @param cx - clientX
- * @param cy - clientY
  */
-function stop(cx: number, cy: number) {
+function stop() {
   if (!isDrag.value) return;
-  if (droppable.value)
-    emit('stop', $el.value, Number((droppable.value as Element).id));
+  // if (droppable.value)
+  emit('stop', droppable.value, Number((droppable.value as Element)?.id));
 
   sx.value = 0;
   sy.value = 0;
@@ -190,6 +188,12 @@ function stop(cx: number, cy: number) {
 
   isDrag.value = false;
 }
+/**
+ * * Поделиться
+ */
+defineExpose({
+  stop,
+});
 </script>
 
 <template>

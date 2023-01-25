@@ -1,8 +1,15 @@
-import InfoRow from './InfoRow';
 /**
  * * Пропс для таблицы описания компонента
  */
-export default class Prop extends InfoRow {
+export default class Prop {
+  /**
+   * * Название
+   */
+  Name: string = 'fill name!';
+  /**
+   * * Описание
+   */
+  Description: string = 'fill description!';
   /**
    * * Тип
    */
@@ -12,7 +19,6 @@ export default class Prop extends InfoRow {
    */
   Default: string = 'fill default!';
   constructor(obj?: Partial<Prop>) {
-    super();
     if (obj) Object.assign(this, obj);
   }
 }

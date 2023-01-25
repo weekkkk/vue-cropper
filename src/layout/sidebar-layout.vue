@@ -9,7 +9,7 @@
         class="link fw-medium py-2"
         :class="{
           'c-brand': route.name == link.name,
-          'c-second-100': route.name != link.name,
+          'c-base': route.name != link.name,
         }"
         v-for="link in links"
         :key="link.name"

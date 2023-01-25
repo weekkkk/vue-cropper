@@ -13,7 +13,8 @@ import {
 
 import NDrag from '@/components/drag/n-drag.vue';
 import InfoTable from '@/components/info-table.vue';
-import NPopover from '@/components/popover/n-popover.vue';
+import ContentToggle from '@/components/content-toggle.vue';
+// import NPopover from '@/components/popover/n-popover.vue';
 
 function alphabet(a: Info, b: Info) {
   var nameA = a.Name.toLowerCase(),
@@ -134,27 +135,51 @@ const exposings = [
   }),
 ];
 
-const logs: string[] = reactive([]);
-
+/**
+ * * Логи
+ */
+const logs: string[] = reactive(['logs']);
+/**
+ * * Драг элемент
+ */
 const drag = ref<InstanceType<typeof NDrag>>();
-
+/**
+ * * Во время перетаскивания зашел на элемент с классом из массива / droppableClasses /
+ * @param target - Элемент на который зашли
+ * @param id  - ID элемент на который зашли
+ */
 function onEnter(target: HTMLElement | undefined, id: number) {
-  logs.push(`enter ${target} ${id}}`);
+  logs.push(`e: enter | target: ${target} | id: ${id}}`);
   console.log('enter', target, id);
   if (id == 3 && drag.value) {
     drag.value.stop();
   }
 }
+/**
+ * * Во время перетаскивания покинул элемент с классом из массива / droppableClasses /
+ * @param target - Элемент, на который ушли
+ * @param id  - ID элемент, на который ушли
+ */
 function onLeave(target: HTMLElement | undefined, id: number) {
-  logs.push(`leave ${target} ${id}}`);
+  logs.push(`e: leave | target: ${target} | id: ${id}}`);
   console.log('leave', target, id);
 }
+/**
+ * * Начало перетаскивания
+ * @param target - Элемент, который начали перетаскивать
+ * @param id - ID элемента, который начали перетаскивать
+ */
 function onStart(target: HTMLElement | undefined, id: number) {
-  logs.push(`start ${target} ${id}}`);
+  logs.push(`e: start | target: ${target} | id: ${id}}`);
   console.log('start', target, id);
 }
+/**
+ * * Конец перетаскивания
+ * @param target - Элемент, на который заходили до этого
+ * @param id - ID элемента, на который заходили до этого
+ */
 function onStop(target: HTMLElement | undefined, id: number) {
-  logs.push(`stop ${target} ${id}}`);
+  logs.push(`e: stop | target: ${target} | id: ${id}}`);
   console.log('stop', target, id);
 }
 </script>
@@ -188,43 +213,127 @@ function onStop(target: HTMLElement | undefined, id: number) {
   <section class="f fd-col rg-2">
     <h4 class="c-brand">#example</h4>
 
-    <section class="f">
-      <aside
-        class="w-100 bg-second-0 p-3 f fd-col ai-fs rg-3"
-        style="overflow: auto"
+    <section class="f fw-wrap g-3 ai-c p-3 bg-second-0">
+      <NDrag
+        ref="drag"
+        classes="bg-brand c-default p-3"
+        @enter="onEnter"
+        @leave="onLeave"
+        @start="onStart"
+        @stop="onStop"
+        :id="1"
+        :droppable-classes="['droppable-example']"
+        drag-class="n-drag-example drag"
+        grabbing-class="n-drag-example grabbing"
+        droppable-class="n-drag-example-droppable"
       >
-        <NDrag
-          ref="drag"
-          classes="bg-brand c-default p-3"
-          @enter="onEnter"
-          @leave="onLeave"
-          @start="onStart"
-          @stop="onStop"
-          :id="1"
-          :droppable-classes="['droppable-example']"
-          drag-class="n-drag-example drag"
-          grabbing-class="n-drag-example grabbing"
-          droppable-class="n-drag-example-droppable"
-        >
-          <h1>Drag Element</h1>
-        </NDrag>
+        <h1>Drag Element</h1>
+      </NDrag>
 
-        <div class="droppable-example p-5 bg-second-20 c-second-40" id="2">
-          <h1><i>Drop Zone</i></h1>
-        </div>
+      <div class="droppable-example p-5 bg-second-20 c-second-40" id="2">
+        <h1><i>Drop Zone</i></h1>
+      </div>
 
-        <div class="droppable-example p-5 bg-danger c-default" id="3">
-          <h1><i>Stop Zone</i></h1>
-        </div>
-      </aside>
+      <div class="droppable-example p-5 bg-danger c-default" id="3">
+        <h1><i>Stop Zone</i></h1>
+      </div>
 
       <textarea
-        style="min-width: 200px"
-        :value="logs.toString().replaceAll(',', '\n')"
-        class="h-100 w-100 bg-second-100 p-3 c-default"
+        style="min-height: 264px; resize: none"
+        :value="logs.toString().replaceAll(',', '\n\n')"
+        class="w-100 bg-second-100 p-3 c-default"
         readonly
       />
     </section>
+  </section>
+
+  <section class="f fd-col rg-2 fs-small-p">
+    <h4 class="c-brand">#template</h4>
+
+    <div class="p-3 bg-second-0 fs-caption">
+      <pre v-highlightjs><code class="html">&lt;div
+  class=&quot;w-100 bg-second-0 p-3 f fd-col ai-fs rg-3&quot;
+  style=&quot;overflow: auto&quot;
+&gt;
+  &lt;NDrag
+    ref=&quot;drag&quot;
+    classes=&quot;bg-brand c-default p-3&quot;
+    @enter=&quot;onEnter&quot;
+    @leave=&quot;onLeave&quot;
+    @start=&quot;onStart&quot;
+    @stop=&quot;onStop&quot;
+    :id=&quot;1&quot;
+    :droppable-classes=&quot;['droppable-example']&quot;
+    drag-class=&quot;n-drag-example drag&quot;
+    grabbing-class=&quot;n-drag-example grabbing&quot;
+    droppable-class=&quot;n-drag-example-droppable&quot;
+  &gt;
+    &lt;h1&gt;Drag Element&lt;/h1&gt;
+  &lt;/NDrag&gt;
+
+  &lt;div class=&quot;droppable-example p-5 bg-second-20 c-second-40&quot; id=&quot;2&quot;&gt;
+    &lt;h1&gt;&lt;i&gt;Drop Zone&lt;/i&gt;&lt;/h1&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;droppable-example p-5 bg-danger c-default&quot; id=&quot;3&quot;&gt;
+    &lt;h1&gt;&lt;i&gt;Stop Zone&lt;/i&gt;&lt;/h1&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </section>
+
+  <section class="info f fd-col rg-2 fs-small-p">
+    <h4 class="c-brand">#script</h4>
+
+    <div class="p-3 bg-second-0 fs-caption">
+      <pre v-highlightjs><code class="typescript">/**
+ * * Логи
+ */
+const logs: string[] = reactive(['logs']);
+/**
+ * * Драг элемент
+ */
+const drag = ref&lt;InstanceType&lt;typeof NDrag&gt;&gt;();
+/**
+ * * Во время перетаскивания зашел на элемент с классом из массива / droppableClasses /
+ * @param target - Элемент на который зашли
+ * @param id  - ID элемент на который зашли
+ */
+function onEnter(target: HTMLElement | undefined, id: number) {
+  logs.push(&#x60;e: enter | target: ${target} | id: ${id}}&#x60;);
+  console.log('enter', target, id);
+  if (id == 3 &amp;&amp; drag.value) {
+    drag.value.stop();
+  }
+}
+/**
+ * * Во время перетаскивания покинул элемент с классом из массива / droppableClasses /
+ * @param target - Элемент, на который ушли
+ * @param id  - ID элемент, на который ушли
+ */
+function onLeave(target: HTMLElement | undefined, id: number) {
+  logs.push(&#x60;e: leave | target: ${target} | id: ${id}}&#x60;);
+  console.log('leave', target, id);
+}
+/**
+ * * Начало перетаскивания
+ * @param target - Элемент, который начали перетаскивать
+ * @param id - ID элемента, который начали перетаскивать
+ */
+function onStart(target: HTMLElement | undefined, id: number) {
+  logs.push(&#x60;e: start | target: ${target} | id: ${id}}&#x60;);
+  console.log('start', target, id);
+}
+/**
+ * * Конец перетаскивания
+ * @param target - Элемент, на который заходили до этого
+ * @param id - ID элемента, на который заходили до этого 
+ */
+function onStop(target: HTMLElement | undefined, id: number) {
+  logs.push(&#x60;e: stop | target: ${target} | id: ${id}}&#x60;);
+  console.log('stop', target, id);
+}</code></pre>
+    </div>
   </section>
 </template>
 

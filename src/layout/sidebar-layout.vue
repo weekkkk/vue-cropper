@@ -1,12 +1,12 @@
 <template>
-  <div class="burder" @click.stop="onOpen">
+  <div class="burder bg-second-0 p-1" @click.stop="onOpen">
     <span></span>
   </div>
   <transition name="scale_sidebar">
     <div class="sidebar-layout f fd-col px-3 pb-3 rg-2 bg-default" v-show="isOpen">
-      <h4 class="c-brand py-3 bb">@n-components</h4>
+      <h3 class="c-brand py-3 bb">@n-components</h3>
       <div
-        class="link fw-medium py-2"
+        class="link py-2"
         :class="{
           'c-brand': route.name == link.name,
           'c-base': route.name != link.name,
@@ -63,8 +63,7 @@ window.addEventListener('click', onClose);
 
 <style lang="scss" scoped>
 .sidebar-layout {
-  max-width: 240px;
-  width: 100%;
+  min-width: 240px;
   transition-duration: 0.15s;
   transition-timing-function: ease-in-out;
   position: sticky;
@@ -81,34 +80,37 @@ window.addEventListener('click', onClose);
       }
     }
   }
-  @media (min-width: 765px) {
+  @media (min-width: 1125px) {
     display: flex !important;
   }
-  @media (max-width: 764px) {
+  @media (max-width: 1124px) {
     position: fixed;
-    top: 24px;
-    bottom: 24px;
+    // top: 24px;
+    // bottom: 24px;
     box-shadow: 0 0 0 10000px rgba(0, 0, 0, 0.5);
   }
 }
 .burder {
   position: fixed;
   cursor: pointer;
-  top: 24px;
-  left: 24px;
+  top: 0;
+  left: 0;
   display: none;
   flex-direction: column;
-  row-gap: 4px;
+  height: 24px;
+  width: 24px;
+  justify-content: space-between;
+  // row-gap: 4px;
   &::before,
   &::after,
   span {
     content: '';
     display: inline-block;
     height: 2px;
-    width: 24px;
-    background-color: var(--n-border);
+    width: 100%;
+    background-color: var(--n-second-100);
   }
-  @media (max-width: 764px) {
+  @media (max-width: 1124px) {
     display: flex;
   }
 }

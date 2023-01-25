@@ -247,10 +247,10 @@ function onStop(target: HTMLElement | undefined, id: number) {
     </section>
   </section>
 
-  <section class="f fd-col rg-2 fs-small-p">
+  <section class="f fd-col rg-2">
     <h4 class="c-brand">#template</h4>
 
-    <div class="p-3 bg-second-0 fs-caption">
+    <div class="p-3 bg-second-0 fs-small-p">
       <pre v-highlightjs><code class="html">&lt;div
   class=&quot;w-100 bg-second-0 p-3 f fd-col ai-fs rg-3&quot;
   style=&quot;overflow: auto&quot;
@@ -282,10 +282,10 @@ function onStop(target: HTMLElement | undefined, id: number) {
     </div>
   </section>
 
-  <section class="info f fd-col rg-2 fs-small-p">
+  <section class="info f fd-col rg-2">
     <h4 class="c-brand">#script</h4>
 
-    <div class="p-3 bg-second-0 fs-caption">
+    <div class="p-3 bg-second-0 fs-small-p">
       <pre v-highlightjs><code class="typescript">/**
  * * Логи
  */

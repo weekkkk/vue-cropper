@@ -36,4 +36,8 @@ table {
     }
   }
 }
+
+section.info {
+  overflow: auto;
+}
 </style>

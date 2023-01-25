@@ -45,7 +45,7 @@ const isOpen = ref(false);
  * При смене видимости
  */
 const onOpen = () => {
-  if (window.innerWidth <= 764) {
+  if (window.innerWidth <= 1124) {
     isOpen.value = !isOpen.value;
   } else if (isOpen.value) isOpen.value = false;
 };
@@ -100,7 +100,6 @@ window.addEventListener('click', onClose);
   height: 24px;
   width: 24px;
   justify-content: space-between;
-  // row-gap: 4px;
   &::before,
   &::after,
   span {

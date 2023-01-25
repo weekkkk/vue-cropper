@@ -5,7 +5,7 @@ export default class Type {
   /**
    * * Краткое название
    */
-  Name!: 'string' | 'number' | 'Function' | 'object';
+  Name!: string;
   /**
    * * Полное название
    */

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-// import NDragGroup from '@/components/drag/n-drag-group.vue';
-// import { EMode, EType } from '@/components/drag/enums';
 import { reactive, ref } from 'vue';
 import {
   Info as Prop,
@@ -13,8 +11,6 @@ import {
 
 import NDrag from '@/components/drag/n-drag.vue';
 import InfoTable from '@/components/info-table.vue';
-import ContentToggle from '@/components/content-toggle.vue';
-// import NPopover from '@/components/popover/n-popover.vue';
 
 function alphabet(a: Info, b: Info) {
   var nameA = a.Name.toLowerCase(),
@@ -338,10 +334,6 @@ function onStop(target: HTMLElement | undefined, id: number) {
 </template>
 
 <style lang="scss">
-section.info {
-  overflow: auto;
-}
-
 .n-drag-example {
   &.drag {
     opacity: 0.2;

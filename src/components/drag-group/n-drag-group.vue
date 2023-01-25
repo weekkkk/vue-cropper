@@ -2,7 +2,7 @@
 import { type PropType, ref, computed } from 'vue';
 import type { IFunction } from './interfaces';
 import { EMode, EType } from './enums';
-import NDrag from './n-drag.vue';
+import NDrag from '../drag/n-drag.vue';
 
 /**
  * * Вставить элемент
@@ -15,11 +15,11 @@ const insert: IFunction = (fromIndex, toIndex, elements) => {
   const start = elements.splice(0, toIndex);
   elements.unshift(...center);
   elements.unshift(...start);
-  console.log('insert', { fromIndex, toIndex, elements });
+  // console.log('insert', { fromIndex, toIndex, elements });
   return elements;
 };
 /**
- * * Вставить элемент
+ * * Поменять элементы местами
  * @param fromIndex - Откуда вставить
  * @param toIndex - Куда вставить
  * @param elements - Массив для изменения
@@ -29,7 +29,7 @@ const swap: IFunction = (fromIndex, toIndex, elements) => {
   const toValue = elements[toIndex];
   elements[fromIndex] = toValue;
   elements[toIndex] = fromValue;
-  console.log('swap', { fromIndex, toIndex, elements });
+  // console.log('swap', { fromIndex, toIndex, elements });
   return elements;
 };
 
@@ -68,7 +68,7 @@ const props = defineProps({
   /**
    * * Классы элемента на который дропают текщий
    */
-  droppadleClass: { type: String, default: '' },
+  droppableClass: { type: String, default: '' },
 });
 
 /**
@@ -135,7 +135,7 @@ function start(target: HTMLElement | undefined, id: number) {
   if (index == -1) return;
   fromId.value = id;
   fromElement.value = target;
-  console.log('start', { target, id, index });
+  // console.log('start', { target, id, index });
 }
 
 /**
@@ -163,7 +163,7 @@ function enter(target: HTMLElement | undefined, id: number) {
   toId.value = id;
   toElement.value = target;
 
-  console.log('enter', { target, id, index });
+  // console.log('enter', { target, id, index });
 
   if (props.mode == EMode.Live) action();
 }
@@ -175,7 +175,7 @@ function enter(target: HTMLElement | undefined, id: number) {
  */
 function leave(target: HTMLElement | undefined, id: number) {
   if (props.mode == EMode.Live || id == fromId.value) return;
-  console.log('leave', target, id);
+  // console.log('leave', target, id);
   toId.value = undefined;
   toElement.value = undefined;
   _ids.value = ids.value.slice(0);
@@ -187,7 +187,7 @@ function leave(target: HTMLElement | undefined, id: number) {
  * @param id - ID элемента
  */
 function stop(target: HTMLElement | undefined, id: number) {
-  console.log('stop');
+  // console.log('stop');
   if (
     toElement.value &&
     !toElement.value.classList.contains('droppable-no-insert') &&
@@ -239,6 +239,13 @@ function action() {
       return;
   }
 }
+/**
+ * * Поделиться
+ */
+defineExpose({
+  insert,
+  swap,
+});
 </script>
 
 <template>
@@ -272,7 +279,7 @@ function action() {
           },
         ]"
         :drag-class="dragClass"
-        :droppable-class="droppadleClass"
+        :droppable-class="droppableClass"
         :droppable-classes="['droppable', 'droppable-no-insert']"
         :grabbing-class="grabbingClass"
       >
@@ -284,7 +291,7 @@ function action() {
         :id="id.toString()"
         class="separator droppable right"
         :class="{
-          active: id != fromId && fromIndex != undefined && id != fromIndex - 1,
+          active: id != fromId && fromIndex != undefined && index != fromIndex - 1,
         }"
       />
     </template>
@@ -306,11 +313,10 @@ function action() {
   $columns: v-bind(columns);
 
   display: inline-flex;
-  align-items: center;
+  // align-items: center;
   flex-wrap: wrap;
   row-gap: $rg;
   padding: $py $px;
-  border: 1px solid gray;
 
   &:not(.insert.record) {
     column-gap: $cg;
@@ -322,14 +328,9 @@ function action() {
   &_element {
     overflow: hidden;
     width: calc((100% - $cg * $columns - $cg) / $columns);
-    // height: 100px;
-    // opacity: 0.3;
-    // border: 2px solid blue;
-    // background: gray;
   }
 
   .separator {
-    height: 80px;
     z-index: 2;
     width: $cg;
   }

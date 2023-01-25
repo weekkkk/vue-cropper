@@ -3,8 +3,7 @@ import {
   createWebHistory,
   type RouteRecordRaw,
 } from 'vue-router';
-import { Main, Drag } from './modules';
-import Popover from './modules/popover';
+import { Main, Popover, Drag, DragGroup } from './modules';
 const routes: Array<RouteRecordRaw> = [
   {
     name: '',
@@ -17,13 +16,17 @@ const routes: Array<RouteRecordRaw> = [
        */
       Main,
       /**
+       * * Поповер
+       */
+      Popover,
+      /**
        * * Элемент для перетаскивания
        */
       Drag,
       /**
-       * * Поповер
+       * * Группа элементов для перетаскивания
        */
-      Popover,
+      DragGroup,
     ],
   },
 ];
@@ -37,6 +40,8 @@ export default router;
 router.beforeEach(async (to, from, next) => {
   const { Title } = to.meta;
   const brand = '@n-';
-  document.title = `${brand}${(Title as string).toLowerCase()}`;
+  document.title = `${brand}${(Title as string)
+    .replace(' ', '-')
+    .toLowerCase()}`;
   next();
 });

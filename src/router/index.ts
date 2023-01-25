@@ -4,6 +4,7 @@ import {
   type RouteRecordRaw,
 } from 'vue-router';
 import { Main, Drag } from './modules';
+import Popover from './modules/popover';
 const routes: Array<RouteRecordRaw> = [
   {
     name: '',
@@ -12,13 +13,17 @@ const routes: Array<RouteRecordRaw> = [
     redirect: Main,
     children: [
       /**
-       * * Главная страница
+       * * Главная
        */
       Main,
       /**
        * * Элемент для перетаскивания
        */
       Drag,
+      /**
+       * * Поповер
+       */
+      Popover,
     ],
   },
 ];

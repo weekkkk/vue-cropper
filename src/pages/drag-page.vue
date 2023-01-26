@@ -181,7 +181,6 @@ function onStop(target: HTMLElement | undefined, id: number) {
 </script>
 
 <template>
-  <RouterView name="slots" />
   <section class="info f fd-col rg-2">
     <h4 class="c-brand">#props</h4>
 

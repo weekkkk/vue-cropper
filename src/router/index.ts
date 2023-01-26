@@ -3,8 +3,8 @@ import {
   createWebHistory,
   type RouteRecordRaw,
 } from 'vue-router';
-import { Main } from './modules';
-import Popover from './modules/popover';
+import { Main, Popover } from './modules';
+
 const routes: Array<RouteRecordRaw> = [
   {
     name: '',

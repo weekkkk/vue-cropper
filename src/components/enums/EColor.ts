@@ -1,7 +1,7 @@
 /**
  * * Цвета
  */
-enum Color {
+enum EColor {
   /**
    * * Фокус
    */
@@ -31,4 +31,4 @@ enum Color {
    */
   Default = 'default',
 }
-export default Color;
+export default EColor;

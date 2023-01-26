@@ -1,5 +1,5 @@
 /**
  * * Позиции
  */
-import Position from './Position';
-export { Position };
+import EPosition from './EPosition';
+export { EPosition };

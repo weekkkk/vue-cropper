@@ -8,8 +8,8 @@ import {
   reactive,
   onMounted,
 } from 'vue';
-import { Color } from '../enums';
-import { Position } from './enums';
+import { EColor } from '../enums';
+import { EPosition } from './enums';
 /**
  * * Свойства
  */
@@ -17,17 +17,17 @@ const props = defineProps({
   /**
    * * Позиция
    */
-  position: { type: String as PropType<Position>, default: Position.Bottom },
+  position: { type: String as PropType<EPosition>, default: EPosition.Bottom },
   /**
    * * Цвет
    */
-  color: { type: String as PropType<Color>, default: Color.Default },
+  color: { type: String as PropType<EColor>, default: EColor.Default },
   /**
    * * Ширина
    */
   width: { type: String, default: 'auto' },
   /**
-   * * Классы
+   * * Классы контента
    */
   classes: { type: String, default: '' },
   /**
@@ -93,11 +93,11 @@ function focus() {
  * * Высчитать позицию
  */
 function calc(
-  p: Position,
+  p: EPosition,
   about: DOMRect,
   rect: DOMRect,
   i = 0
-): { x: number; y: number; position: Position } {
+): { x: number; y: number; position: EPosition } {
   const bw = getComputedStyle(document.documentElement)
     .getPropertyValue('--n-popover-tr')
     .replace('px', '');
@@ -116,16 +116,16 @@ function calc(
     ];
     switch (indets.indexOf(Math.max(...indets))) {
       case 0:
-        p = Position.Left;
+        p = EPosition.Left;
         break;
       case 1:
-        p = Position.Right;
+        p = EPosition.Right;
         break;
       case 2:
-        p = Position.Top;
+        p = EPosition.Top;
         break;
       case 3:
-        p = Position.Bottom;
+        p = EPosition.Bottom;
         break;
     }
 
@@ -134,7 +134,7 @@ function calc(
   }
 
   switch (p) {
-    case Position.Top:
+    case EPosition.Top:
       settings.x = about.left + about.width / 2 - rect.width / 2;
       settings.y = about.top - rect.height;
 
@@ -149,9 +149,9 @@ function calc(
             about.width / 2 - min ||
           about.left <= -about.width / 2 + min)
       )
-        return calc(Position.Right, about, rect, i + 1);
+        return calc(EPosition.Right, about, rect, i + 1);
       break;
-    case Position.Left:
+    case EPosition.Left:
       settings.y = about.top + about.height / 2 - rect.height / 2;
       settings.x = about.left - rect.width;
 
@@ -166,9 +166,9 @@ function calc(
             about.height / 2 - min ||
           about.top <= -about.height / 2 + min)
       )
-        return calc(Position.Top, about, rect, i + 1);
+        return calc(EPosition.Top, about, rect, i + 1);
       break;
-    case Position.Right:
+    case EPosition.Right:
       settings.y = about.top + about.height / 2 - rect.height / 2;
       settings.x = about.right;
 
@@ -183,9 +183,9 @@ function calc(
             about.height / 2 - min ||
           about.top <= -about.height / 2 + min)
       )
-        return calc(Position.Bottom, about, rect, i + 1);
+        return calc(EPosition.Bottom, about, rect, i + 1);
       break;
-    case Position.Bottom:
+    case EPosition.Bottom:
       settings.x = about.left + about.width / 2 - rect.width / 2;
       settings.y = about.bottom;
 
@@ -200,10 +200,10 @@ function calc(
             about.width / 2 - min ||
           about.left <= -about.width / 2 + min)
       )
-        return calc(Position.Left, about, rect, i + 1);
+        return calc(EPosition.Left, about, rect, i + 1);
       break;
-    case Position.Auto:
-      return calc(Position.Top, about, rect);
+    case EPosition.Auto:
+      return calc(EPosition.Top, about, rect);
   }
   return settings;
 }
@@ -315,7 +315,7 @@ defineExpose({
  */
 const _color = computed((): string => {
   const prefix = '--n-';
-  const postfix = props.color == Color.Second ? '-100' : '';
+  const postfix = props.color == EColor.Second ? '-100' : '';
   return `var(${prefix}${props.color}${postfix})`;
 });
 </script>

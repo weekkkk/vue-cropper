@@ -2,4 +2,8 @@
  * * Главная
  */
 import Main from './main';
-export { Main };
+/**
+ * * Поповер
+ */
+import Popover from './popover';
+export { Main, Popover };

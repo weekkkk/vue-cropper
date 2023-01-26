@@ -1,7 +1,7 @@
 /**
  * * Позиции
  */
-enum Position {
+enum EPosition {
   /**
    * * Сверху
    */
@@ -23,4 +23,4 @@ enum Position {
    */
   Auto = 'auto',
 }
-export default Position;
+export default EPosition;

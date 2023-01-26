@@ -1,5 +1,5 @@
 /**
  * * Цвета
  */
-import Color from './Color';
-export { Color };
+import EColor from './EColor';
+export { EColor };

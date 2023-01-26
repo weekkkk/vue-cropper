@@ -12,5 +12,6 @@ export default class Type {
   FullName?: string;
   constructor(obj?: Partial<Type>) {
     if (obj) Object.assign(this, obj);
+    if (this.FullName) this.FullName = this.FullName.replaceAll('","', '"," ');
   }
 }

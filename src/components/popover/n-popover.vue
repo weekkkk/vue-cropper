@@ -110,9 +110,9 @@ function calc(
   if (ignore) {
     const indets = [
       about.left,
-      window.innerWidth - about.right,
+      document.documentElement.clientWidth - about.right,
       about.top,
-      window.innerHeight - about.bottom,
+      document.documentElement.clientHeight - about.bottom,
     ];
     switch (indets.indexOf(Math.max(...indets))) {
       case 0:
@@ -139,13 +139,14 @@ function calc(
       settings.y = about.top - rect.height;
 
       if (settings.x < 0) settings.x = 0;
-      else if (settings.x + rect.width > window.innerWidth)
-        settings.x = window.innerWidth - rect.width;
+      else if (settings.x + rect.width > document.documentElement.clientWidth)
+        settings.x = document.documentElement.clientWidth - rect.width;
 
       if (
         !ignore &&
         (settings.y < 0 ||
-          about.right - window.innerWidth >= about.width / 2 - min ||
+          about.right - document.documentElement.clientWidth >=
+            about.width / 2 - min ||
           about.left <= -about.width / 2 + min)
       )
         return calc(Position.Right, about, rect, i + 1);
@@ -155,13 +156,14 @@ function calc(
       settings.x = about.left - rect.width;
 
       if (settings.y < 0) settings.y = 0;
-      else if (settings.y + rect.height > window.innerHeight)
-        settings.y = window.innerHeight - rect.height;
+      else if (settings.y + rect.height > document.documentElement.clientHeight)
+        settings.y = document.documentElement.clientHeight - rect.height;
 
       if (
         !ignore &&
         (settings.x < 0 ||
-          about.bottom - window.innerHeight >= about.height / 2 - min ||
+          about.bottom - document.documentElement.clientHeight >=
+            about.height / 2 - min ||
           about.top <= -about.height / 2 + min)
       )
         return calc(Position.Top, about, rect, i + 1);
@@ -171,13 +173,14 @@ function calc(
       settings.x = about.right;
 
       if (settings.y < 0) settings.y = 0;
-      else if (settings.y + rect.height > window.innerHeight)
-        settings.y = window.innerHeight - rect.height;
+      else if (settings.y + rect.height > document.documentElement.clientHeight)
+        settings.y = document.documentElement.clientHeight - rect.height;
 
       if (
         !ignore &&
-        (settings.x + rect.width > window.innerWidth ||
-          about.bottom - window.innerHeight >= about.height / 2 - min ||
+        (settings.x + rect.width > document.documentElement.clientWidth ||
+          about.bottom - document.documentElement.clientHeight >=
+            about.height / 2 - min ||
           about.top <= -about.height / 2 + min)
       )
         return calc(Position.Bottom, about, rect, i + 1);
@@ -187,13 +190,14 @@ function calc(
       settings.y = about.bottom;
 
       if (settings.x < 0) settings.x = 0;
-      else if (settings.x + rect.width > window.innerWidth)
-        settings.x = window.innerWidth - rect.width;
+      else if (settings.x + rect.width > document.documentElement.clientWidth)
+        settings.x = document.documentElement.clientWidth - rect.width;
 
       if (
         !ignore &&
-        (settings.y + rect.height > window.innerHeight ||
-          about.right - window.innerWidth >= about.width / 2 - min ||
+        (settings.y + rect.height > document.documentElement.clientHeight ||
+          about.right - document.documentElement.clientWidth >=
+            about.width / 2 - min ||
           about.left <= -about.width / 2 + min)
       )
         return calc(Position.Left, about, rect, i + 1);
@@ -317,7 +321,7 @@ const _color = computed((): string => {
 </script>
 
 <template>
-  <div class="n-popover_element bg-second-40" ref="$element" @click="focus">
+  <div class="n-popover_element" ref="$element" @click="focus">
     <Teleport to="body">
       <Transition name="n-popover_animation">
         <div
@@ -337,11 +341,12 @@ const _color = computed((): string => {
             ref="$content"
             class="n-popover_content"
             :style="{ left: `${content.x}px`, top: `${content.y}px` }"
+            :class="[_position, color]"
           >
             <div
               ref="$inner"
               class="inner"
-              :class="[_position, color]"
+              :class="[_position, color, classes]"
               :style="{
                 width,
               }"
@@ -360,7 +365,7 @@ const _color = computed((): string => {
 :root {
   --n-popover-c: var(--n-default);
   --n-popover-tr: 4px;
-  --n-popover-br: 8px;
+  --n-popover-br: 0px;
   --n-popover-sh: 0 0 calc(var(--n-popover-tr) * 2);
   --n-popover-ts: 0.15s ease-in-out;
 }
@@ -395,9 +400,28 @@ $transition: var(--n-popover-ts);
       min-width: $min;
 
       &.default {
-        box-shadow: var(--n-popover-sh) var(--n-base);
+        box-shadow: var(--n-popover-sh) var(--n-second-60);
         color: var(--n-base);
       }
+
+      &.top,
+      &.bottom {
+        max-width: 100%;
+      }
+
+      &.left,
+      &.right {
+        max-height: 100%;
+      }
+    }
+    &.top,
+    &.bottom {
+      max-width: 100%;
+    }
+
+    &.left,
+    &.right {
+      max-height: 100%;
     }
   }
 

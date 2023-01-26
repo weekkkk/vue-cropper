@@ -1,4 +1,8 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from 'vue-router';
 import { Main } from './modules';
 import Popover from './modules/popover';
 const routes: Array<RouteRecordRaw> = [
@@ -25,3 +29,12 @@ const router = createRouter({
 });
 export { routes };
 export default router;
+
+router.beforeEach(async (to, from, next) => {
+  const { Title } = to.meta;
+  const brand = '@n-';
+  document.title = `${brand}${(Title as string)
+    .replace(' ', '-')
+    .toLowerCase()}`;
+  next();
+});

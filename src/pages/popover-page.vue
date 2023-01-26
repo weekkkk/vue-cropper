@@ -147,6 +147,34 @@ const exposings = [
  * * Логи
  */
 const logs: string[] = reactive(['logs']);
+/**
+ * * При окрытии поповера
+ */
+function onOpen(target: HTMLElement) {
+  console.log('open', target);
+  logs.push(`open target: ${target}`);
+}
+/**
+ * * При закрытии поповера
+ */
+function onClose(target: HTMLElement) {
+  console.log('close', target);
+  logs.push(`close target: ${target}`);
+}
+/**
+ * * При фокусе на элемент поповера
+ */
+function onFocus(target: HTMLElement) {
+  console.log('focus', target);
+  logs.push(`focus target: ${target}`);
+}
+/**
+ * * При потере фокуса элементом поповера
+ */
+function onBlur(target: HTMLElement) {
+  console.log('blur', target);
+  logs.push(`blur target: ${target}`);
+}
 </script>
 
 <template>
@@ -178,14 +206,92 @@ const logs: string[] = reactive(['logs']);
     <h4 class="c-brand">#example</h4>
 
     <section class="bg-second-0 f fd-col p-3 rg-3">
-      <NPopover class="p-3 bg-brand c-default" classes="p-3">
+      <NPopover
+        class="p-3 bg-brand c-default"
+        classes="p-3"
+        :position="EPosition.Bottom"
+        :color="EColor.Second"
+        @focus="onFocus"
+        @blur="onBlur"
+        @open="onOpen"
+        @close="onClose"
+      >
         <template #content>
           <h1>Popover Content</h1>
         </template>
 
         <h1>Popover Element</h1>
       </NPopover>
+
+      <textarea
+        style="min-height: 264px; resize: none"
+        :value="logs.toString().replaceAll(',', '\n\n')"
+        class="w-100 bg-second-100 p-3 c-default"
+        readonly
+      />
     </section>
+  </section>
+
+  <section class="f fd-col rg-2">
+    <h4 class="c-brand">#template</h4>
+
+    <div class="p-3 bg-second-0 fs-small-p">
+      <pre v-highlightjs><code class="html">&lt;NPopover
+  class=&quot;p-3 bg-brand c-default&quot;
+  classes=&quot;p-3&quot;
+  :position=&quot;EPosition.Bottom&quot;
+  :color=&quot;EColor.Second&quot;
+  @focus=&quot;onFocus&quot;
+  @blur=&quot;onBlur&quot;
+  @open=&quot;onOpen&quot;
+  @close=&quot;onClose&quot;
+&gt;
+  &lt;template #content&gt;
+    &lt;h1&gt;Popover Content&lt;/h1&gt;
+  &lt;/template&gt;
+
+  &lt;h1&gt;Popover Element&lt;/h1&gt;
+&lt;/NPopover&gt;</code></pre>
+    </div>
+  </section>
+
+  <section class="info f fd-col rg-2">
+    <h4 class="c-brand">#script</h4>
+
+    <div class="p-3 bg-second-0 fs-small-p">
+      <pre v-highlightjs><code class="typescript">/**
+ * * Логи
+ */
+const logs: string[] = reactive(['logs']);
+/**
+ * * При окрытии поповера
+ */
+function onOpen(target: HTMLElement) {
+  console.log('open', target);
+  logs.push(&#x60;open target: ${target}&#x60;);
+}
+/**
+ * * При закрытии поповера
+ */
+function onClose(target: HTMLElement) {
+  console.log('close', target);
+  logs.push(&#x60;close target: ${target}&#x60;);
+}
+/**
+ * * При фокусе на элемент поповера
+ */
+function onFocus(target: HTMLElement) {
+  console.log('focus', target);
+  logs.push(&#x60;focus target: ${target}&#x60;);
+}
+/**
+ * * При потере фокуса элементом поповера
+ */
+function onBlur(target: HTMLElement) {
+  console.log('blur', target);
+  logs.push(&#x60;blur target: ${target}&#x60;);
+}</code></pre>
+    </div>
   </section>
 </template>
 

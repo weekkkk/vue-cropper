@@ -45,3 +45,12 @@ router.beforeEach(async (to, from, next) => {
     .toLowerCase()}`;
   next();
 });
+
+router.beforeEach(async (to, from, next) => {
+  const { Title } = to.meta;
+  const brand = '@n-';
+  document.title = `${brand}${(Title as string)
+    .replace(' ', '-')
+    .toLowerCase()}`;
+  next();
+});

@@ -36,7 +36,6 @@ table {
     }
   }
 }
-
 section.info {
   overflow: auto;
 }

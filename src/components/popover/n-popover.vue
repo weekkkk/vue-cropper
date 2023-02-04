@@ -365,7 +365,7 @@ const _color = computed((): string => {
 :root {
   --n-popover-c: var(--n-default);
   --n-popover-tr: 4px;
-  --n-popover-br: 0px;
+  --n-popover-br: 4px;
   --n-popover-sh: 0 0 calc(var(--n-popover-tr) * 2);
   --n-popover-ts: 0.15s ease-in-out;
 }

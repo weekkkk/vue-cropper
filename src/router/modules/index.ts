@@ -6,4 +6,8 @@ import Main from './main';
  * * Поповер
  */
 import Popover from './popover';
-export { Main, Popover };
+/**
+ * * Поле для ввода
+ */
+import Control from './control';
+export { Main, Popover, Control };

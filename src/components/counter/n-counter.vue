@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { type PropType, ref, computed } from 'vue';
-import NInput from '../control/n-input.vue';
+import NInput from '../input/n-input.vue';
 import { EType } from '../control/enums';
 import { EColor, ESize } from '../enums';
 import NButton from '../button/n-button.vue';
@@ -48,6 +48,14 @@ const props = defineProps({
    * * Неактивность
    */
   disabled: { type: Boolean, default: false },
+  /**
+   * * Неактивность
+   */
+  input: { type: Boolean, default: false },
+  /**
+   * * Поле только для чтения
+   */
+  readonly: { type: Boolean, default: false },
 });
 /**
  * * События
@@ -142,6 +150,7 @@ const isMax = computed(
     :warn="warn"
     :danger="danger"
     :disabled="disabled"
+    :readonly="!input || readonly"
   >
     <template #before>
       <div class="n-counter-action_before lh-no fw-medium fs-h2">
@@ -150,7 +159,7 @@ const isMax = computed(
           @mousedown.prevent="control?.focus"
           :color="EColor.Brand"
           :size="size"
-          :disabled="disabled || isMin"
+          :disabled="disabled || isMin || readonly"
           square
           no-fill
         >
@@ -165,7 +174,7 @@ const isMax = computed(
           @mousedown.prevent="control?.focus"
           :color="EColor.Brand"
           :size="size"
-          :disabled="disabled || isMax"
+          :disabled="disabled || isMax || readonly"
           square
           no-fill
         >

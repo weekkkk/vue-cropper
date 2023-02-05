@@ -9,5 +9,5 @@ import Popover from './popover';
 /**
  * * Поле для ввода
  */
-import Control from './control';
-export { Main, Popover, Control };
+import Input from './input';
+export { Main, Popover, Input };

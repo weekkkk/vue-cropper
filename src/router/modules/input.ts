@@ -3,10 +3,10 @@ import { CONTROL } from './names';
 /**
  * * Поле для ввода
  */
-const Control: RouteRecordRaw = {
+const Input: RouteRecordRaw = {
   name: CONTROL,
   path: `/${CONTROL}`,
-  meta: { Title: 'Control' },
-  component: () => import('@/pages/control-page.vue'),
+  meta: { Title: 'Input' },
+  component: () => import('@/pages/input-page.vue'),
 };
-export default Control;
+export default Input;

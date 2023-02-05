@@ -9,7 +9,7 @@ const props = defineProps({
   /**
    * * Значение
    */
-  modelValue: { type: [String, Number], required: true },
+  modelValue: { type: [String, Number], default: undefined },
   /**
    * * Заполнитель
    */
@@ -54,21 +54,34 @@ const props = defineProps({
    * * Неактивность
    */
   disabled: { type: Boolean, default: false },
+  /**
+   * * Поле только для чтения
+   */
+  readonly: { type: Boolean, default: false },
 });
 /**
  * * События
  */
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: string | number): void;
+  /**
+   * Обновление значения
+   */
+  (e: 'update:modelValue', value: string | number | undefined): void;
+  /**
+   * Фокус на инпут
+   */
   (e: 'focus', target: HTMLInputElement): void;
+  /**
+   * Снятие фокуса с инпута
+   */
   (e: 'blur', target: HTMLInputElement): void;
 }>();
 /**
  * * Значения
  */
-const value = computed<string | number>({
+const value = computed<string | number | undefined>({
   get: () => props.modelValue,
-  set: (value: string | number) => emit('update:modelValue', value),
+  set: (value: string | number | undefined) => emit('update:modelValue', value),
 });
 /**
  * * Значение фокуса
@@ -89,7 +102,7 @@ function onBlur(e: Event) {
   emit('blur', e.target as HTMLInputElement);
 }
 /**
- * * Инпут
+ * * Поле для ввода
  */
 const $field = ref<HTMLInputElement | HTMLTextAreaElement>();
 /**
@@ -110,7 +123,6 @@ function blur() {
  * * Поделиться
  */
 defineExpose({
-  isFocus,
   focus,
   blur,
   $field,
@@ -145,6 +157,7 @@ defineExpose({
       @blur="onBlur"
       :type="type"
       :disabled="disabled"
+      :readonly="readonly"
     />
     <textarea
       v-else
@@ -155,6 +168,7 @@ defineExpose({
       @blur="onBlur"
       :rows="rows"
       :disabled="disabled"
+      :readonly="readonly"
     />
     <slot name="after" />
   </div>

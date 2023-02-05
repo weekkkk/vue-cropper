@@ -3,7 +3,7 @@ import {
   createWebHistory,
   type RouteRecordRaw,
 } from 'vue-router';
-import { Control, Main, Popover } from './modules';
+import { Input, Main, Popover } from './modules';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -23,7 +23,7 @@ const routes: Array<RouteRecordRaw> = [
       /**
        * * Поле для ввода
        */
-      Control,
+      Input,
     ],
   },
 ];

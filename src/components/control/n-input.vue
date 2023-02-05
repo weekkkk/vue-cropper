@@ -49,7 +49,11 @@ const props = defineProps({
   /**
    * * Ошибка
    */
-  error: { type: Boolean, default: false },
+  danger: { type: Boolean, default: false },
+  /**
+   * * Неактивность
+   */
+  disabled: { type: Boolean, default: false },
 });
 /**
  * * События
@@ -115,8 +119,18 @@ defineExpose({
 
 <template>
   <div
-    class="n-control"
-    :class="[{ focus: isFocus, success, warn, error }, type, size]"
+    class="n-input"
+    :class="[
+      {
+        'n-input_bool-focus': isFocus,
+        'n-input_bool-success': success,
+        'n-input_bool-warn': warn,
+        'n-input_bool-danger': danger,
+        'n-input_bool-disabled': disabled,
+      },
+      `n-input_type-${type}`,
+      `n-input_size-${size}`,
+    ]"
   >
     <slot name="before" />
     <input
@@ -130,6 +144,7 @@ defineExpose({
       @focus="onFocus"
       @blur="onBlur"
       :type="type"
+      :disabled="disabled"
     />
     <textarea
       v-else
@@ -139,6 +154,7 @@ defineExpose({
       @focus="onFocus"
       @blur="onBlur"
       :rows="rows"
+      :disabled="disabled"
     />
     <slot name="after" />
   </div>
@@ -146,43 +162,27 @@ defineExpose({
 
 <style lang="scss">
 :root {
-  --n-control-small-px: 0.25rem;
-  --n-control-default-px: 0.5rem;
-  --n-control-large-px: 1rem;
-  --n-control-px: 0.5rem;
-  --n-control-small-py: 0.125rem;
-  --n-control-default-py: 0.25rem;
-  --n-control-large-py: 0.5rem;
-  --n-control-py: 0.25rem;
-  --n-control-br: 0.25rem;
-  --n-control-bw: 1px;
-  --n-control-small-size: 1.5rem;
-  --n-control-default-size: 2rem;
-  --n-control-large-size: 2.5rem;
-  --n-control-size: var(--n-control-default-size);
-  --n-control-bc: var(--n-second-100);
-  --n-control-bc-focus: var(--n-brand);
-  --n-control-bc-success: var(--n-success);
-  --n-control-bc-warn: var(--n-warn);
-  --n-control-bc-error: var(--n-danger);
-  --n-control-ph: var(--n-second-50);
-  --n-control-ts: 0.15s ease-in-out;
+  --n-input-bg: var(--n-default);
+  --n-input-px: var(--n-ctrl-default-px);
+  --n-input-py: var(--n-ctrl-default-py);
+  --n-input-br: var(--n-ctrl-default-br);
+  --n-input-sz: var(--n-ctrl-default-sz);
+  --n-input-bw: var(--n-ctrl-bw);
+  --n-input-bc: var(--n-ctrl-bc);
+  --n-input-br: var(--n-ctrl-br);
 }
 </style>
 
 <style lang="scss" scoped>
-$bw: var(--n-control-bw);
-$bc: var(--n-control-bc);
-$radius: var(--n-control-br);
-$px: var(--n-control-px);
-$py: var(--n-control-py);
-$size: var(--n-control-size);
-$focus: var(--n-control-bc-focus);
-$success: var(--n-control-bc-success);
-$error: var(--n-control-bc-danger);
-$placeholder: var(--n-control-ph);
-$transition: var(--n-control-ts);
-.n-control {
+$bg: var(--n-input-bg);
+$px: var(--n-input-px);
+$py: var(--n-input-py);
+$br: var(--n-input-br);
+$sz: var(--n-input-sz);
+$bw: var(--n-input-bw);
+$bc: var(--n-input-bc);
+$br: var(--n-input-br);
+.n-input {
   display: inline-flex;
   align-items: center;
   border: none;
@@ -191,27 +191,29 @@ $transition: var(--n-control-ts);
   column-gap: $px;
   outline: $bw solid $bc;
   outline-offset: calc($bw * -1);
-  border-radius: $radius;
-  transition: $transition;
+  border-radius: $br;
+  background-color: $bg;
   input,
   textarea {
     border: none;
     outline: none;
+    background: none;
     font-size: inherit;
     font-family: inherit;
     font-weight: inherit;
     text-align: inherit;
+    cursor: inherit;
     width: 100%;
     padding: 0;
     &::placeholder {
       font-size: inherit;
       font-family: inherit;
       font-weight: inherit;
-      color: $placeholder;
+      color: var(--n-second-50);
     }
   }
   input {
-    line-height: $size;
+    line-height: $sz;
     &[type='number'] {
       &::-webkit-outer-spin-button,
       &::-webkit-inner-spin-button {
@@ -225,37 +227,46 @@ $transition: var(--n-control-ts);
     resize: none;
     height: 100%;
   }
-  &.textarea {
+  &_type-textarea {
     padding-top: $py;
     padding-bottom: $py;
-    min-height: $size;
+    min-height: $sz;
   }
-  &.small {
-    --n-control-size: var(--n-control-small-size);
-    --n-control-px: var(--n-control-small-px);
-    --n-control-py: var(--n-control-small-py);
+  &_size {
+    &-small {
+      --n-input-px: var(--n-ctrl-small-px);
+      --n-input-py: var(--n-ctrl-small-py);
+      --n-input-sz: var(--n-ctrl-small-sz);
+    }
+    &-default {
+      --n-input-px: var(--n-ctrl-default-px);
+      --n-input-py: var(--n-ctrl-default-py);
+      --n-input-sz: var(--n-ctrl-default-sz);
+    }
+    &-large {
+      --n-input-px: var(--n-ctrl-large-px);
+      --n-input-py: var(--n-ctrl-large-py);
+      --n-input-sz: var(--n-ctrl-large-sz);
+    }
   }
-  &.default {
-    --n-control-size: var(--n-control-default-size);
-    --n-control-px: var(--n-control-default-px);
-    --n-control-py: var(--n-control-default-py);
-  }
-  &.large {
-    --n-control-size: var(--n-control-large-size);
-    --n-control-px: var(--n-control-large-px);
-    --n-control-py: var(--n-control-large-py);
-  }
-  &.success {
-    --n-control-bc: var(--n-control-bc-success);
-  }
-  &.warn {
-    --n-control-bc: var(--n-control-bc-warn);
-  }
-  &.error {
-    --n-control-bc: var(--n-control-bc-error);
-  }
-  &.focus {
-    --n-control-bc: var(--n-control-bc-focus);
+  &_bool {
+    &-focus {
+      --n-input-bc: var(--n-brand);
+    }
+    &-success {
+      --n-input-bc: var(--n-success);
+    }
+    &-warn {
+      --n-input-bc: var(--n-warn);
+    }
+    &-danger {
+      --n-input-bc: var(--n-danger);
+    }
+    &-disabled {
+      --n-input-bg: var(--n-second-0);
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 }
 </style>

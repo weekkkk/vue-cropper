@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { type PropType, ref } from 'vue';
-import NControl from '../control/n-control.vue';
+import { type PropType, ref, computed } from 'vue';
+import NInput from '../control/n-input.vue';
 import { EType } from '../control/enums';
-import { ESize } from '../enums';
+import { EColor, ESize } from '../enums';
+import NButton from '../button/n-button.vue';
 /**
  * * Свойства
  */
@@ -31,17 +32,35 @@ const props = defineProps({
    * * Размер
    */
   size: { type: String as PropType<ESize>, default: ESize.Default },
+  /**
+   * * Успех
+   */
+  success: { type: Boolean, default: false },
+  /**
+   * * Предупеждение
+   */
+  warn: { type: Boolean, default: false },
+  /**
+   * * Ошибка
+   */
+  danger: { type: Boolean, default: false },
+  /**
+   * * Неактивность
+   */
+  disabled: { type: Boolean, default: false },
 });
 /**
  * * События
  */
 const emit = defineEmits<{
   (e: 'update:modelValue', newValue: number | undefined): void;
+  (e: 'up', newValue: number | undefined): void;
+  (e: 'down', newValue: number | undefined): void;
 }>();
 /**
  * * Контрол
  */
-const control = ref<InstanceType<typeof NControl>>();
+const control = ref<InstanceType<typeof NInput>>();
 /**
  * * Обновление значения
  */
@@ -55,18 +74,18 @@ function update(value: number | string) {
  */
 function down() {
   const input = control.value?.$field as HTMLInputElement;
-  // input.focus();
   input.stepDown();
   update(Number(input.value));
+  emit('down', props.modelValue);
 }
 /**
  * * Больше
  */
 function up() {
   const input = control.value?.$field as HTMLInputElement;
-  // input.focus();
   input.stepUp();
   update(Number(input.value));
+  emit('up', props.modelValue);
 }
 /**
  * * При снятии фокуса
@@ -81,16 +100,32 @@ function onBlur(input: HTMLInputElement) {
     input.stepUp();
     update(Number(input.value));
   }
-  console.log('onBlur');
 }
-
 function onFocus() {
   console.log('onFocus');
 }
+/**
+ * * Минильно ли значение
+ */
+const isMin = computed(
+  () =>
+    props.min != undefined &&
+    props.modelValue != undefined &&
+    props.modelValue - props.step < props.min
+);
+/**
+ * * Максимально ли значение
+ */
+const isMax = computed(
+  () =>
+    props.max != undefined &&
+    props.modelValue != undefined &&
+    props.modelValue + props.step > props.max
+);
 </script>
 
 <template>
-  <NControl
+  <NInput
     class="n-counter"
     ref="control"
     :model-value="modelValue == undefined ? '' : modelValue"
@@ -103,41 +138,70 @@ function onFocus() {
     :step="step"
     :size="size"
     :type="EType.Number"
+    :success="success"
+    :warn="warn"
+    :danger="danger"
+    :disabled="disabled"
   >
     <template #before>
-      <button
-        class="action before"
-        @click="down"
-        @mousedown.prevent="control?.focus"
-      >
-        -
-      </button>
+      <div class="n-counter-action_before lh-no fw-medium fs-h2">
+        <NButton
+          @click="down"
+          @mousedown.prevent="control?.focus"
+          :color="EColor.Brand"
+          :size="size"
+          :disabled="disabled || isMin"
+          square
+          no-fill
+        >
+          -
+        </NButton>
+      </div>
     </template>
     <template #after>
-      <button
-        class="action after"
-        @click="up"
-        @mousedown.prevent="control?.focus"
-      >
-        +
-      </button>
+      <div class="n-counter-action_after lh-no fw-medium fs-h2">
+        <NButton
+          @click="up"
+          @mousedown.prevent="control?.focus"
+          :color="EColor.Brand"
+          :size="size"
+          :disabled="disabled || isMax"
+          square
+          no-fill
+        >
+          +
+        </NButton>
+      </div>
     </template>
-  </NControl>
+  </NInput>
 </template>
 
 <style lang="scss" scoped>
+$bw: var(--n-input-bw);
+$px: var(--n-input-px);
+$sz: var(--n-input-sz);
+$bc: var(--n-ctrl-bc);
 .n-counter {
   text-align: center;
   overflow: hidden;
-  .action {
-    border: none;
-    border-radius: 0;
-    height: 100%;
-    &.before {
-      margin-left: calc(var(--n-control-px) * -1);
+  min-width: calc($sz * 3);
+  --n-input-px: var(--n-input-py);
+  &-action {
+    &_before,
+    &_after {
+      --n-button-bw: 0;
+      outline: $bw solid $bc;
+      outline-offset: calc($bw * -1);
     }
-    &.after {
-      margin-right: calc(var(--n-control-px) * -1);
+    &_before {
+      margin-left: calc($px * -1);
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    &_after {
+      margin-right: calc($px * -1);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
     }
   }
 }

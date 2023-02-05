@@ -9,4 +9,8 @@ export const POPOVER = 'popover';
 /**
  * * Поле для ввода
  */
-export const CONTROL = 'control';
+export const INPUT = 'input';
+/**
+ * * Счетчик
+ */
+export const COUNTER = 'counter';

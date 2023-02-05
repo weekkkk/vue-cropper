@@ -70,11 +70,11 @@ const emit = defineEmits<{
   /**
    * Фокус на инпут
    */
-  (e: 'focus', target: HTMLInputElement): void;
+  (e: 'focus', target: HTMLInputElement | HTMLTextAreaElement): void;
   /**
    * Снятие фокуса с инпута
    */
-  (e: 'blur', target: HTMLInputElement): void;
+  (e: 'blur', target: HTMLInputElement | HTMLTextAreaElement): void;
 }>();
 /**
  * * Значения

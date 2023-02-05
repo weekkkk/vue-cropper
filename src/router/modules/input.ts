@@ -1,11 +1,11 @@
 import type { RouteRecordRaw } from 'vue-router';
-import { CONTROL } from './names';
+import { INPUT } from './names';
 /**
  * * Поле для ввода
  */
 const Input: RouteRecordRaw = {
-  name: CONTROL,
-  path: `/${CONTROL}`,
+  name: INPUT,
+  path: `/${INPUT}`,
   meta: { Title: 'Input' },
   component: () => import('@/pages/input-page.vue'),
 };

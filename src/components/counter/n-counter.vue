@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { type PropType, ref, computed } from 'vue';
 import NInput from '../input/n-input.vue';
-import { EType } from '../control/enums';
+import { EType } from '../input/enums';
 import { EColor, ESize } from '../enums';
 import NButton from '../button/n-button.vue';
 /**
@@ -49,7 +49,7 @@ const props = defineProps({
    */
   disabled: { type: Boolean, default: false },
   /**
-   * * Неактивность
+   * * Ввод значения вручную
    */
   input: { type: Boolean, default: false },
   /**
@@ -61,9 +61,26 @@ const props = defineProps({
  * * События
  */
 const emit = defineEmits<{
+  /**
+   * Обновление значения
+   */
   (e: 'update:modelValue', newValue: number | undefined): void;
-  (e: 'up', newValue: number | undefined): void;
-  (e: 'down', newValue: number | undefined): void;
+  /**
+   * Фокус на инпут
+   */
+  (e: 'focus', target: HTMLInputElement): void;
+  /**
+   * Снятие фокуса с инпута
+   */
+  (e: 'blur', target: HTMLInputElement): void;
+  /**
+   * Шаг выше
+   */
+  (e: 'up', newValue: number): void;
+  /**
+   * Шаг ниже
+   */
+  (e: 'down', newValue: number): void;
 }>();
 /**
  * * Контрол
@@ -72,7 +89,7 @@ const control = ref<InstanceType<typeof NInput>>();
 /**
  * * Обновление значения
  */
-function update(value: number | string) {
+function update(value: number | string | undefined) {
   let newValue: string | number | undefined = value;
   if (typeof newValue == 'string') newValue = undefined;
   emit('update:modelValue', newValue);
@@ -83,22 +100,32 @@ function update(value: number | string) {
 function down() {
   const input = control.value?.$field as HTMLInputElement;
   input.stepDown();
+  emit('down', Number(input.value));
   update(Number(input.value));
-  emit('down', props.modelValue);
 }
 /**
  * * Больше
  */
 function up() {
   const input = control.value?.$field as HTMLInputElement;
+  console.log('input.value', input.value);
+  
   input.stepUp();
+  emit('up', Number(input.value));
   update(Number(input.value));
-  emit('up', props.modelValue);
+}
+/**
+ * * При фокусе
+ */
+function onFocus(input: HTMLInputElement | HTMLTextAreaElement) {
+  if (input instanceof HTMLTextAreaElement) return;
+  emit('focus', input);
 }
 /**
  * * При снятии фокуса
  */
-function onBlur(input: HTMLInputElement) {
+function onBlur(input: HTMLInputElement | HTMLTextAreaElement) {
+  if (input instanceof HTMLTextAreaElement) return;
   let value = props.modelValue;
   if (value == undefined) return;
   if (props.max != undefined && value > props.max) {
@@ -108,9 +135,7 @@ function onBlur(input: HTMLInputElement) {
     input.stepUp();
     update(Number(input.value));
   }
-}
-function onFocus() {
-  console.log('onFocus');
+  emit('blur', input);
 }
 /**
  * * Минильно ли значение
@@ -130,6 +155,16 @@ const isMax = computed(
     props.modelValue != undefined &&
     props.modelValue + props.step > props.max
 );
+/**
+ * * Поделиться
+ */
+defineExpose({
+  up,
+  down,
+  focus: control.value?.focus,
+  blur: control.value?.blur,
+  $field: control.value?.$field,
+});
 </script>
 
 <template>
@@ -153,7 +188,7 @@ const isMax = computed(
     :readonly="!input || readonly"
   >
     <template #before>
-      <div class="n-counter-action_before lh-no fw-medium fs-h2">
+      <div class="n-counter-action_before lh-no fw-medium">
         <NButton
           @click="down"
           @mousedown.prevent="control?.focus"
@@ -163,12 +198,12 @@ const isMax = computed(
           square
           no-fill
         >
-          -
+          <slot name="down" />
         </NButton>
       </div>
     </template>
     <template #after>
-      <div class="n-counter-action_after lh-no fw-medium fs-h2">
+      <div class="n-counter-action_after lh-no fw-medium">
         <NButton
           @click="up"
           @mousedown.prevent="control?.focus"
@@ -178,7 +213,7 @@ const isMax = computed(
           square
           no-fill
         >
-          +
+          <slot name="up" />
         </NButton>
       </div>
     </template>
@@ -198,6 +233,7 @@ $bc: var(--n-ctrl-bc);
   &-action {
     &_before,
     &_after {
+      display: inline-flex;
       --n-button-bw: 0;
       outline: $bw solid $bc;
       outline-offset: calc($bw * -1);

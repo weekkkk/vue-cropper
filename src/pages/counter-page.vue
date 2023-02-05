@@ -11,7 +11,7 @@ import {
 import InfoTable from '@/components/info-table.vue';
 
 import { ESize } from '@/components/enums';
-import NInput from '@/components/input/n-input.vue';
+import NCounter from '@/components/counter/n-counter.vue';
 import { EType } from '@/components/input/enums';
 
 function alphabet(a: Info, b: Info) {
@@ -36,7 +36,7 @@ const format = (rows: Info[]) =>
 const props = [
   new Prop({
     Name: 'modelValue',
-    Type: 'string | number | undefined',
+    Type: 'number | undefined',
     Default: 'undefined',
     Description: 'Значение',
   }),
@@ -63,21 +63,6 @@ const props = [
     Type: 'number',
     Default: '1',
     Description: 'Шаг',
-  }),
-  new Prop({
-    Name: 'rows',
-    Type: 'number',
-    Default: '3',
-    Description: 'Кол-во строк в комметарии',
-  }),
-  new Prop({
-    Name: 'type',
-    Type: new Type({
-      Name: 'EType',
-      FullName: JSON.stringify(EType),
-    }),
-    Default: 'EType.Text',
-    Description: 'Тип',
   }),
   new Prop({
     Name: 'size',
@@ -113,6 +98,12 @@ const props = [
     Description: 'Неактивность',
   }),
   new Prop({
+    Name: 'input',
+    Type: 'boolean',
+    Default: 'false',
+    Description: 'Ввод значения вручную',
+  }),
+  new Prop({
     Name: 'readonly',
     Type: 'boolean',
     Default: 'false',
@@ -128,7 +119,7 @@ const emits = [
     Description: 'Обновление значения',
     Type: new Type({
       Name: 'Function',
-      FullName: '(value: string | number | undefined): void',
+      FullName: '(value: number | undefined): void',
     }),
   }),
   new Emit({
@@ -136,7 +127,7 @@ const emits = [
     Description: 'Фокус на инпут',
     Type: new Type({
       Name: 'Function',
-      FullName: '(target: HTMLElement): void',
+      FullName: '(target: HTMLInputElement): void',
     }),
   }),
   new Emit({
@@ -144,7 +135,23 @@ const emits = [
     Description: 'Снятие фокуса с инпута',
     Type: new Type({
       Name: 'Function',
-      FullName: '(target: HTMLElement): void',
+      FullName: '(target: HTMLInputElement): void',
+    }),
+  }),
+  new Emit({
+    Name: 'up',
+    Description: 'Шаг выше',
+    Type: new Type({
+      Name: 'Function',
+      FullName: '(newValue: number): void',
+    }),
+  }),
+  new Emit({
+    Name: 'down',
+    Description: 'Шаг ниже',
+    Type: new Type({
+      Name: 'Function',
+      FullName: '(newValue: number): void',
     }),
   }),
 ].sort(alphabet);
@@ -154,17 +161,33 @@ const emits = [
 const slots = [
   new Slot({
     Name: 'down',
-    Description: 'Контент до инпута',
+    Description: 'Шаг ниже',
   }),
   new Slot({
-    Name: 'after',
-    Description: 'Контент после инпута',
+    Name: 'up',
+    Description: 'Шаг выше',
   }),
 ];
 /**
  * * Делится
  */
 const exposings = [
+  new Exposing({
+    Name: 'up',
+    Description: 'Шаг выше',
+    Type: new Type({
+      Name: 'Function',
+      FullName: '() => void',
+    }),
+  }),
+  new Exposing({
+    Name: 'down',
+    Description: 'Шаг ниже',
+    Type: new Type({
+      Name: 'Function',
+      FullName: '() => void',
+    }),
+  }),
   new Exposing({
     Name: 'focus',
     Description: 'Фокус',
@@ -191,7 +214,7 @@ const exposings = [
 /**
  * * Значение
  */
-const modelValue = ref<string>();
+const modelValue = ref<number | undefined>(0);
 /**
  * * Логи
  */
@@ -199,10 +222,24 @@ const logs: string[] = reactive(['logs']);
 /**
  * * При обновлении значения
  */
-function onUpdateModelValue(value: string | number | undefined) {
-  if (typeof value != 'number') modelValue.value = value;
+function onUpdateModelValue(value: number | undefined) {
+  modelValue.value = value;
   console.log('update:model-value', value);
   logs.push(`update:model-value value: ${value}`);
+}
+/**
+ * * При шаге выше
+ */
+function onUp(value: number) {
+  console.log('up', value);
+  logs.push(`up value: ${value}`);
+}
+/**
+ * * При шаге ниже
+ */
+function onDown(value: number) {
+  console.log('down', value);
+  logs.push(`down value: ${value}`);
 }
 /**
  * * При фокусе на элемент поповера
@@ -249,15 +286,23 @@ function onBlur(target: HTMLElement) {
     <h4 class="c-brand">#example</h4>
 
     <section class="bg-second-0 f fd-col p-3 rg-3">
-      <NInput
+      <NCounter
         :model-value="modelValue"
         @update:model-value="onUpdateModelValue"
+        :step="2"
+        :min="-2"
+        :max="10"
         placeholder="Placeholder"
+        input
         :size="ESize.Large"
-        :type="EType.Text"
+        @up="onUp"
+        @down="onDown"
         @focus="onFocus"
         @blur="onBlur"
-      />
+      >
+        <template #down>-</template>
+        <template #up>+</template>
+      </NCounter>
 
       <textarea
         style="min-height: 264px; resize: none"
@@ -272,15 +317,23 @@ function onBlur(target: HTMLElement) {
     <h4 class="c-brand">#template</h4>
 
     <div class="p-3 bg-second-0 fs-small-p">
-      <pre v-highlightjs><code class="html">&lt;NInput
+      <pre v-highlightjs><code class="html">&lt;NCounter
   :model-value=&quot;modelValue&quot;
   @update:model-value=&quot;onUpdateModelValue&quot;
+  :step=&quot;2&quot;
+  :min=&quot;-2&quot;
+  :max=&quot;10&quot;
   placeholder=&quot;Placeholder&quot;
+  input
   :size=&quot;ESize.Large&quot;
-  :type=&quot;EType.Text&quot;
+  @up=&quot;onUp&quot;
+  @down=&quot;onDown&quot;
   @focus=&quot;onFocus&quot;
   @blur=&quot;onBlur&quot;
-/&gt;</code></pre>
+&gt;
+  &lt;template #down&gt;-&lt;/template&gt;
+  &lt;template #up&gt;+&lt;/template&gt;
+&lt;/NCounter&gt;</code></pre>
     </div>
   </section>
 
@@ -291,7 +344,7 @@ function onBlur(target: HTMLElement) {
       <pre v-highlightjs><code class="typescript">/**
  * * Значение
  */
-const modelValue = ref&lt;string&gt;();
+const modelValue = ref&lt;number | undefined&gt;(0);
 /**
  * * Логи
  */
@@ -299,10 +352,24 @@ const logs: string[] = reactive(['logs']);
 /**
  * * При обновлении значения
  */
-function onUpdateModelValue(value: string | number | undefined) {
-  if (typeof value != 'number') modelValue.value = value;
+function onUpdateModelValue(value: number | undefined) {
+  modelValue.value = value;
   console.log('update:model-value', value);
   logs.push(&#x60;update:model-value value: ${value}&#x60;);
+}
+/**
+ * * При шаге выше
+ */
+function onUp(value: number) {
+  console.log('up', value);
+  logs.push(&#x60;up value: ${value}&#x60;);
+}
+/**
+ * * При шаге ниже
+ */
+function onDown(value: number) {
+  console.log('down', value);
+  logs.push(&#x60;down value: ${value}&#x60;);
 }
 /**
  * * При фокусе на элемент поповера

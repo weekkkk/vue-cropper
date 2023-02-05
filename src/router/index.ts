@@ -3,7 +3,7 @@ import {
   createWebHistory,
   type RouteRecordRaw,
 } from 'vue-router';
-import { Input, Main, Popover } from './modules';
+import { Input, Main, Popover, Counter } from './modules';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -24,6 +24,10 @@ const routes: Array<RouteRecordRaw> = [
        * * Поле для ввода
        */
       Input,
+      /**
+       * * Счетчик
+       */
+      Counter,
     ],
   },
 ];

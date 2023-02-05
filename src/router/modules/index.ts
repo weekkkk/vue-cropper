@@ -10,4 +10,8 @@ import Popover from './popover';
  * * Поле для ввода
  */
 import Input from './input';
-export { Main, Popover, Input };
+/**
+ * * Счетчик
+ */
+import Counter from './counter';
+export { Main, Popover, Input, Counter };

@@ -17,7 +17,7 @@ const props = defineProps({
   /**
    * * Позиция
    */
-  position: { type: String as PropType<EPosition>, default: EPosition.Bottom },
+  position: { type: String as PropType<EPosition>, default: EPosition.Auto },
   /**
    * * Цвет
    */
@@ -34,6 +34,14 @@ const props = defineProps({
    * * Режим тултипа
    */
   tooltip: { type: Boolean, default: false },
+  /**
+   * * Неактивность
+   */
+  disabled: { type: Boolean, default: false },
+  /**
+   * * Неактивность телепорта
+   */
+  noTeleport: { type: Boolean, default: false },
 });
 /**
  * * События
@@ -128,8 +136,6 @@ function calc(
         p = EPosition.Bottom;
         break;
     }
-
-    console.error('ignore', { i, p });
     settings.position = p;
   }
 
@@ -233,7 +239,9 @@ async function init() {
  * * При загрузке компонента
  */
 onMounted(() => {
-  if (!$element.value || !props.tooltip) return;
+  if (!$element.value || props.disabled) return;
+  $element.value.addEventListener('click', focus);
+  if (!props.tooltip) return;
   $element.value.addEventListener('mouseover', focus);
 });
 /**
@@ -243,10 +251,14 @@ async function open() {
   if (visible.value) return;
   visible.value = true;
   await init();
-  window.addEventListener('click', click);
-  if (props.tooltip && $element.value && $inner.value) {
-    $element.value.addEventListener('mouseout', mouseout);
-    $inner.value.addEventListener('mouseout', mouseout);
+  if (!props.disabled) {
+    window.addEventListener('click', click);
+    window.addEventListener('scroll', close);
+    window.addEventListener('resize', close);
+    if (props.tooltip && $element.value && $inner.value) {
+      $element.value.addEventListener('mouseout', mouseout);
+      $inner.value.addEventListener('mouseout', mouseout);
+    }
   }
   await nextTick();
   if ($inner.value) emit('open', $inner.value);
@@ -257,10 +269,14 @@ async function open() {
 function close() {
   if (!visible.value) return;
   visible.value = false;
-  window.removeEventListener('click', click);
-  if (props.tooltip && $element.value && $inner.value) {
-    $element.value.removeEventListener('mouseout', mouseout);
-    $inner.value.removeEventListener('mouseout', mouseout);
+  if (!props.disabled) {
+    window.removeEventListener('click', click);
+    window.removeEventListener('scroll', close);
+    window.removeEventListener('resize', close);
+    if (props.tooltip && $element.value && $inner.value) {
+      $element.value.removeEventListener('mouseout', mouseout);
+      $inner.value.removeEventListener('mouseout', mouseout);
+    }
   }
   if (!$inner.value) return;
   emit('close', $inner.value);
@@ -310,27 +326,13 @@ defineExpose({
   open,
   close,
 });
-/**
- * * Цвет
- */
-const _color = computed((): string => {
-  const prefix = '--n-';
-  const postfix = props.color == EColor.Second ? '-100' : '';
-  return `var(${prefix}${props.color}${postfix})`;
-});
 </script>
 
 <template>
-  <div class="n-popover_element" ref="$element" @click="focus">
-    <Teleport to="body">
+  <div class="n-popover_element" ref="$element">
+    <Teleport to="body" :disabled="noTeleport">
       <Transition name="n-popover_animation">
-        <div
-          class="n-popover_container"
-          :style="{
-            '--n-popover-c': _color,
-          }"
-          v-if="visible"
-        >
+        <div class="n-popover_container" v-if="visible" :class="color">
           <div
             ref="$triangle"
             class="n-popover_triangle"
@@ -367,7 +369,7 @@ const _color = computed((): string => {
   --n-popover-tr: 4px;
   --n-popover-br: 4px;
   --n-popover-sh: 0 0 calc(var(--n-popover-tr) * 2);
-  --n-popover-ts: 0.15s ease-in-out;
+  --n-popover-ts: none;
 }
 </style>
 
@@ -384,7 +386,6 @@ $transition: var(--n-popover-ts);
     display: inline-flex;
     width: fit-content;
     height: fit-content;
-    cursor: pointer;
   }
 
   &_content {
@@ -400,7 +401,7 @@ $transition: var(--n-popover-ts);
       min-width: $min;
 
       &.default {
-        box-shadow: var(--n-popover-sh) var(--n-second-60);
+        box-shadow: var(--n-popover-sh) var(--n-second-50);
         color: var(--n-base);
       }
 
@@ -458,6 +459,30 @@ $transition: var(--n-popover-ts);
   &_container {
     position: absolute;
     z-index: 1000;
+    &.brand {
+      --n-popover-c: var(--n-brand);
+    }
+    &.success {
+      --n-popover-c: var(--n-success);
+    }
+    &.warn {
+      --n-popover-c: var(--n-warn);
+    }
+    &.danger {
+      --n-popover-c: var(--n-danger);
+    }
+    &.second {
+      --n-popover-c: var(--n-second-100);
+    }
+    &.base {
+      --n-popover-c: var(--n-base);
+    }
+    &.default {
+      --n-popover-c: var(--n-default);
+    }
+    &.brand {
+      --n-popover-c: var(--n-brand);
+    }
   }
 
   &_animation-enter-active,

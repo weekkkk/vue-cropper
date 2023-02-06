@@ -38,6 +38,10 @@ const props = defineProps({
    * * Неактивность
    */
   disabled: { type: Boolean, default: false },
+  /**
+   * * Неактивность телепорта
+   */
+  noTeleport: { type: Boolean, default: false },
 });
 /**
  * * События
@@ -132,8 +136,6 @@ function calc(
         p = EPosition.Bottom;
         break;
     }
-
-    console.error('ignore', { i, p });
     settings.position = p;
   }
 
@@ -251,6 +253,8 @@ async function open() {
   await init();
   if (!props.disabled) {
     window.addEventListener('click', click);
+    window.addEventListener('scroll', close);
+    window.addEventListener('resize', close);
     if (props.tooltip && $element.value && $inner.value) {
       $element.value.addEventListener('mouseout', mouseout);
       $inner.value.addEventListener('mouseout', mouseout);
@@ -267,6 +271,8 @@ function close() {
   visible.value = false;
   if (!props.disabled) {
     window.removeEventListener('click', click);
+    window.removeEventListener('scroll', close);
+    window.removeEventListener('resize', close);
     if (props.tooltip && $element.value && $inner.value) {
       $element.value.removeEventListener('mouseout', mouseout);
       $inner.value.removeEventListener('mouseout', mouseout);
@@ -320,27 +326,13 @@ defineExpose({
   open,
   close,
 });
-/**
- * * Цвет
- */
-const _color = computed((): string => {
-  const prefix = '--n-';
-  const postfix = props.color == EColor.Second ? '-100' : '';
-  return `var(${prefix}${props.color}${postfix})`;
-});
 </script>
 
 <template>
   <div class="n-popover_element" ref="$element">
-    <Teleport to="body">
+    <Teleport to="body" :disabled="noTeleport">
       <Transition name="n-popover_animation">
-        <div
-          class="n-popover_container"
-          :style="{
-            '--n-popover-c': _color,
-          }"
-          v-if="visible"
-        >
+        <div class="n-popover_container" v-if="visible" :class="color">
           <div
             ref="$triangle"
             class="n-popover_triangle"
@@ -409,7 +401,7 @@ $transition: var(--n-popover-ts);
       min-width: $min;
 
       &.default {
-        box-shadow: var(--n-popover-sh) var(--n-second-60);
+        box-shadow: var(--n-popover-sh) var(--n-second-50);
         color: var(--n-base);
       }
 
@@ -467,6 +459,30 @@ $transition: var(--n-popover-ts);
   &_container {
     position: absolute;
     z-index: 1000;
+    &.brand {
+      --n-popover-c: var(--n-brand);
+    }
+    &.success {
+      --n-popover-c: var(--n-success);
+    }
+    &.warn {
+      --n-popover-c: var(--n-warn);
+    }
+    &.danger {
+      --n-popover-c: var(--n-danger);
+    }
+    &.second {
+      --n-popover-c: var(--n-second-100);
+    }
+    &.base {
+      --n-popover-c: var(--n-base);
+    }
+    &.default {
+      --n-popover-c: var(--n-default);
+    }
+    &.brand {
+      --n-popover-c: var(--n-brand);
+    }
   }
 
   &_animation-enter-active,

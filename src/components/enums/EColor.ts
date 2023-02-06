@@ -17,7 +17,7 @@ enum EColor {
   /**
    * * Ошибка
    */
-  Error = 'error',
+  Danger = 'danger',
   /**
    * * Вторичный
    */

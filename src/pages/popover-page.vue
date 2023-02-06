@@ -60,15 +60,21 @@ const props = [
   }),
   new Prop({
     Name: 'tooltip',
-    Type: 'string',
-    Default: "''",
-    Description: 'Режим тултипа',
-  }),
-  new Prop({
-    Name: 'droppableClasses',
     Type: 'boolean',
     Default: 'false',
     Description: 'Режим тултипа',
+  }),
+  new Prop({
+    Name: 'disabled',
+    Type: 'boolean',
+    Default: 'false',
+    Description: 'Неактивность',
+  }),
+  new Prop({
+    Name: 'noTeleport',
+    Type: 'boolean',
+    Default: 'false',
+    Description: 'Неактивность телепорта',
   }),
 ].sort(alphabet);
 /**
@@ -205,7 +211,7 @@ function onBlur(target: HTMLElement) {
   <section class="f fd-col rg-2">
     <h4 class="c-brand">#example</h4>
 
-    <section class="bg-second-0 f fd-col p-3 rg-3">
+    <section class="info bg-second-0 f fd-col p-3 rg-3">
       <NPopover
         class="p-3 bg-brand c-default"
         classes="p-3"

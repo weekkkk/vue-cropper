@@ -17,7 +17,7 @@ const props = defineProps({
   /**
    * * Позиция
    */
-  position: { type: String as PropType<EPosition>, default: EPosition.Bottom },
+  position: { type: String as PropType<EPosition>, default: EPosition.Auto },
   /**
    * * Цвет
    */
@@ -34,6 +34,10 @@ const props = defineProps({
    * * Режим тултипа
    */
   tooltip: { type: Boolean, default: false },
+  /**
+   * * Неактивность
+   */
+  disabled: { type: Boolean, default: false },
 });
 /**
  * * События
@@ -233,7 +237,9 @@ async function init() {
  * * При загрузке компонента
  */
 onMounted(() => {
-  if (!$element.value || !props.tooltip) return;
+  if (!$element.value || props.disabled) return;
+  $element.value.addEventListener('click', focus);
+  if (!props.tooltip) return;
   $element.value.addEventListener('mouseover', focus);
 });
 /**
@@ -243,10 +249,12 @@ async function open() {
   if (visible.value) return;
   visible.value = true;
   await init();
-  window.addEventListener('click', click);
-  if (props.tooltip && $element.value && $inner.value) {
-    $element.value.addEventListener('mouseout', mouseout);
-    $inner.value.addEventListener('mouseout', mouseout);
+  if (!props.disabled) {
+    window.addEventListener('click', click);
+    if (props.tooltip && $element.value && $inner.value) {
+      $element.value.addEventListener('mouseout', mouseout);
+      $inner.value.addEventListener('mouseout', mouseout);
+    }
   }
   await nextTick();
   if ($inner.value) emit('open', $inner.value);
@@ -257,10 +265,12 @@ async function open() {
 function close() {
   if (!visible.value) return;
   visible.value = false;
-  window.removeEventListener('click', click);
-  if (props.tooltip && $element.value && $inner.value) {
-    $element.value.removeEventListener('mouseout', mouseout);
-    $inner.value.removeEventListener('mouseout', mouseout);
+  if (!props.disabled) {
+    window.removeEventListener('click', click);
+    if (props.tooltip && $element.value && $inner.value) {
+      $element.value.removeEventListener('mouseout', mouseout);
+      $inner.value.removeEventListener('mouseout', mouseout);
+    }
   }
   if (!$inner.value) return;
   emit('close', $inner.value);
@@ -321,7 +331,7 @@ const _color = computed((): string => {
 </script>
 
 <template>
-  <div class="n-popover_element" ref="$element" @click="focus">
+  <div class="n-popover_element" ref="$element">
     <Teleport to="body">
       <Transition name="n-popover_animation">
         <div
@@ -365,9 +375,9 @@ const _color = computed((): string => {
 :root {
   --n-popover-c: var(--n-default);
   --n-popover-tr: 4px;
-  --n-popover-br: 0px;
+  --n-popover-br: 8px;
   --n-popover-sh: 0 0 calc(var(--n-popover-tr) * 2);
-  --n-popover-ts: 0.15s ease-in-out;
+  --n-popover-ts: none;
 }
 </style>
 
@@ -384,7 +394,6 @@ $transition: var(--n-popover-ts);
     display: inline-flex;
     width: fit-content;
     height: fit-content;
-    cursor: pointer;
   }
 
   &_content {

@@ -56,6 +56,10 @@ const props = defineProps({
    * * Поле только для чтения
    */
   readonly: { type: Boolean, default: false },
+  /**
+   * * ID инпута
+   */
+  id: { type: String, default: '' },
 });
 /**
  * * События
@@ -109,7 +113,7 @@ function down() {
 function up() {
   const input = control.value?.$field as HTMLInputElement;
   console.log('input.value', input.value);
-  
+
   input.stepUp();
   emit('up', Number(input.value));
   update(Number(input.value));
@@ -186,6 +190,7 @@ defineExpose({
     :danger="danger"
     :disabled="disabled"
     :readonly="!input || readonly"
+    :id="id"
   >
     <template #before>
       <div class="n-counter-action_before lh-no fw-medium">

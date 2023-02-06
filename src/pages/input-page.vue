@@ -118,6 +118,12 @@ const props = [
     Default: 'false',
     Description: 'Поле только для чтения',
   }),
+  new Prop({
+    Name: 'id',
+    Type: 'string',
+    Default: "''",
+    Description: 'ID инпута',
+  }),
 ].sort(alphabet);
 /**
  * * События

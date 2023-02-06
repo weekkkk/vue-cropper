@@ -58,6 +58,10 @@ const props = defineProps({
    * * Поле только для чтения
    */
   readonly: { type: Boolean, default: false },
+  /**
+   * * ID инпута
+   */
+  id: { type: String, default: '' },
 });
 /**
  * * События
@@ -158,6 +162,7 @@ defineExpose({
       :type="type"
       :disabled="disabled"
       :readonly="readonly"
+      :id="id"
     />
     <textarea
       v-else

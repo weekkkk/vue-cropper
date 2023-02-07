@@ -3,7 +3,6 @@ import {
   type PropType,
   ref,
   nextTick,
-  computed,
   onUnmounted,
   reactive,
   onMounted,

@@ -25,6 +25,14 @@ const props = defineProps({
    * * Неактивность
    */
   disabled: { type: Boolean, default: false },
+  /**
+   * * Иконка перед текстом
+   */
+  beforeIcon: { type: String, default: undefined },
+  /**
+   * * Иконка после текста
+   */
+  afterIcon: { type: String, default: undefined },
 });
 </script>
 
@@ -42,7 +50,9 @@ const props = defineProps({
     ]"
     :disabled="disabled"
   >
+    <i class="icon" v-if="beforeIcon" :class="beforeIcon" />
     <slot />
+    <i class="icon" v-if="afterIcon" :class="afterIcon" />
   </button>
 </template>
 
@@ -50,6 +60,7 @@ const props = defineProps({
 :root {
   --n-button-tx: inherit;
   --n-button-bg: var(--n-default);
+  --n-button-is: var(--n-ctrl-is);
   --n-button-px: var(--n-ctrl-default-px);
   --n-button-py: var(--n-ctrl-default-py);
   --n-button-br: var(--n-ctrl-default-br);
@@ -61,6 +72,7 @@ const props = defineProps({
 </style>
 
 <style lang="scss" scoped>
+$is: var(--n-button-is);
 $tx: var(--n-button-tx);
 $bg: var(--n-button-bg);
 $px: var(--n-button-px);
@@ -76,12 +88,20 @@ $br: var(--n-button-br);
   outline: none;
   font-size: inherit;
   font-weight: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: $py $px;
   min-height: $sz;
   min-width: $sz;
   background-color: $bg;
   border-radius: $br;
   color: $tx;
+  gap: $px;
+  i.icon {
+    line-height: 1;
+    font-size: $is;
+  }
   &_size {
     &-small {
       --n-button-px: var(--n-ctrl-small-px);
@@ -98,9 +118,6 @@ $br: var(--n-button-br);
       --n-button-py: var(--n-ctrl-large-py);
       --n-button-sz: var(--n-ctrl-large-sz);
     }
-  }
-  &:not(.n-button_color-default) {
-    --n-button-tx: var(--n-default);
   }
   &_color {
     // &-default {
@@ -125,6 +142,9 @@ $br: var(--n-button-br);
       --n-button-bg: var(--n-danger);
     }
   }
+  &:not(.n-button_color-default, .n-button_bool-no_fill) {
+    --n-button-tx: var(--n-default);
+  }
   &_bool {
     &-no_fill {
       background-color: transparent;
@@ -136,9 +156,6 @@ $br: var(--n-button-br);
     &-square {
       --n-button-px: 0;
       --n-button-py: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
     }
     &-disabled {
       cursor: not-allowed;

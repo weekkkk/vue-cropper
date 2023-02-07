@@ -26,11 +26,11 @@ const props = defineProps({
    */
   disabled: { type: Boolean, default: false },
   /**
-   * * Иконка перед текстом
+   * * Иконка перед слотом
    */
   beforeIcon: { type: String, default: undefined },
   /**
-   * * Иконка после текста
+   * * Иконка после слота
    */
   afterIcon: { type: String, default: undefined },
 });

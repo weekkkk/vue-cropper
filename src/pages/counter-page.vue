@@ -12,7 +12,6 @@ import InfoTable from '@/components/info-table.vue';
 
 import { ESize } from '@/components/enums';
 import NCounter from '@/components/counter/n-counter.vue';
-import { EType } from '@/components/input/enums';
 
 function alphabet(a: Info, b: Info) {
   var nameA = a.Name.toLowerCase(),

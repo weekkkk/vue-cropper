@@ -368,14 +368,17 @@ defineExpose({
   --n-popover-c: var(--n-default);
   --n-popover-tr: 4px;
   --n-popover-br: 8px;
-  --n-popover-sh: 0 0 calc(var(--n-popover-tr) * 2);
+  --n-popover-sh: 0 0 16px;
+  --n-popover-sh-a: 0.2;
+  --n-popover-sh-rgb: var(--n-base-rgb);
   --n-popover-ts: none;
 }
 </style>
 
 <style lang="scss" scoped>
 $color: var(--n-popover-c);
-$shadow: var(--n-popover-sh) + $color;
+$shadow: var(--n-popover-sh)
+  rgba(var(--n-popover-sh-rgb), var(--n-popover-sh-a));
 $triangle: var(--n-popover-tr);
 $radius: var(--n-popover-br);
 $min: calc($triangle * 2 + $radius * 2);
@@ -401,8 +404,25 @@ $transition: var(--n-popover-ts);
       min-width: $min;
 
       &.default {
-        box-shadow: var(--n-popover-sh) var(--n-second-50);
         color: var(--n-base);
+      }
+      &.brand {
+        --n-popover-rgb: var(--n-brand-rgb);
+      }
+      &.success {
+        --n-popover-rgb: var(--n-success-rgb);
+      }
+      &.warn {
+        --n-popover-rgb: var(--n-warn-rgb);
+      }
+      &.danger {
+        --n-popover-rgb: var(--n-danger-rgb);
+      }
+      &.second {
+        --n-popover-rgb: var(--n-second-rgb);
+      }
+      &.base {
+        --n-popover-rgb: var(--n-base-rgb);
       }
 
       &.top,

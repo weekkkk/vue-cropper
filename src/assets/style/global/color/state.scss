@@ -1,10 +1,16 @@
 :root {
-  --n-brand: #84dcc6;
-  --n-success: #90dc84;
-  --n-warn: #ead66c;
-  --n-danger: #dc8484;
-  --n-base: #222222;
-  --n-default: #ffffff;
+  --n-brand-rgb: 132, 220, 198;
+  --n-brand: rgb(var(--n-brand-rgb));
+  --n-success-rgb: 144, 220, 132;
+  --n-success: rgb(var(--n-success-rgb));
+  --n-warn-rgb: 234, 214, 108;
+  --n-warn: rgb(var(--n-warn-rgb));
+  --n-danger-rgb: 220, 132, 132;
+  --n-danger: rgb(var(--n-danger-rgb));
+  --n-base-rgb: 34, 34, 34;
+  --n-base: rgb(var(--n-base-rgb));
+  --n-default-rgb: 255, 255, 255;
+  --n-default: rgb(var(--n-default-rgb));
 
   .c-brand {
     color: var(--n-brand);

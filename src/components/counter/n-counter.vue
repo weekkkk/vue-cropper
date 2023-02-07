@@ -60,6 +60,14 @@ const props = defineProps({
    * * ID инпута
    */
   id: { type: String, default: '' },
+  /**
+   * * Иконка шага ниже
+   */
+  downIcon: { type: String, default: undefined },
+  /**
+   * * Иконка шага выше
+   */
+  upIcon: { type: String, default: undefined },
 });
 /**
  * * События
@@ -202,6 +210,7 @@ defineExpose({
           :disabled="disabled || isMin || readonly"
           square
           no-fill
+          :before-icon="downIcon"
         >
           <slot name="down" />
         </NButton>
@@ -217,6 +226,7 @@ defineExpose({
           :disabled="disabled || isMax || readonly"
           square
           no-fill
+          :after-icon="upIcon"
         >
           <slot name="up" />
         </NButton>

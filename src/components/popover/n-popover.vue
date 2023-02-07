@@ -253,11 +253,14 @@ async function open() {
   await init();
   if (!props.disabled) {
     window.addEventListener('click', click);
-    window.addEventListener('scroll', close);
-    window.addEventListener('resize', close);
     if (props.tooltip && $element.value && $inner.value) {
       $element.value.addEventListener('mouseout', mouseout);
       $inner.value.addEventListener('mouseout', mouseout);
+      window.addEventListener('scroll', close);
+      window.addEventListener('resize', close);
+    } else {
+      window.addEventListener('scroll', init);
+      window.addEventListener('resize', init);
     }
   }
   await nextTick();
@@ -271,11 +274,14 @@ function close() {
   visible.value = false;
   if (!props.disabled) {
     window.removeEventListener('click', click);
-    window.removeEventListener('scroll', close);
-    window.removeEventListener('resize', close);
     if (props.tooltip && $element.value && $inner.value) {
       $element.value.removeEventListener('mouseout', mouseout);
       $inner.value.removeEventListener('mouseout', mouseout);
+      window.removeEventListener('scroll', close);
+      window.removeEventListener('resize', close);
+    } else {
+      window.removeEventListener('scroll', init);
+      window.removeEventListener('resize', init);
     }
   }
   if (!$inner.value) return;
@@ -365,17 +371,22 @@ defineExpose({
 
 <style lang="scss">
 :root {
-  --n-popover-c: var(--n-default);
-  --n-popover-tr: 4px;
+  --n-popover-c: inherit;
+  --n-popover-bg: var(--n-default);
+  --n-popover-tr: 6px;
   --n-popover-br: 4px;
-  --n-popover-sh: 0 0 calc(var(--n-popover-tr) * 2);
+  --n-popover-sh: 0 0 16px;
+  --n-popover-sh-a: 0.2;
+  --n-popover-sh-rgb: var(--n-base-rgb);
   --n-popover-ts: none;
 }
 </style>
 
 <style lang="scss" scoped>
 $color: var(--n-popover-c);
-$shadow: var(--n-popover-sh) + $color;
+$bg: var(--n-popover-bg);
+$shadow: var(--n-popover-sh)
+  rgba(var(--n-popover-sh-rgb), var(--n-popover-sh-a));
 $triangle: var(--n-popover-tr);
 $radius: var(--n-popover-br);
 $min: calc($triangle * 2 + $radius * 2);
@@ -391,19 +402,14 @@ $transition: var(--n-popover-ts);
   &_content {
     position: fixed;
     padding: $triangle;
-    color: var(--n-default);
+    color: $color;
 
     .inner {
-      background-color: $color;
+      background-color: $bg;
       box-shadow: $shadow;
       border-radius: $radius;
       min-height: $min;
       min-width: $min;
-
-      &.default {
-        box-shadow: var(--n-popover-sh) var(--n-second-50);
-        color: var(--n-base);
-      }
 
       &.top,
       &.bottom {
@@ -436,23 +442,23 @@ $transition: var(--n-popover-ts);
     border-width: $triangle;
 
     &.top {
-      border-top-color: $color;
+      border-top-color: $bg;
       border-bottom-width: 0;
     }
 
     &.bottom {
       border-top-width: 0;
-      border-bottom-color: $color;
+      border-bottom-color: $bg;
     }
 
     &.left {
       border-right-width: 0;
-      border-left-color: $color;
+      border-left-color: $bg;
     }
 
     &.right {
       border-left-width: 0;
-      border-right-color: $color;
+      border-right-color: $bg;
     }
   }
 
@@ -460,28 +466,35 @@ $transition: var(--n-popover-ts);
     position: absolute;
     z-index: 1000;
     &.brand {
-      --n-popover-c: var(--n-brand);
+      --n-popover-bg: var(--n-brand);
+      --n-popover-rgb: var(--n-brand-rgb);
     }
     &.success {
-      --n-popover-c: var(--n-success);
+      --n-popover-bg: var(--n-success);
+      --n-popover-rgb: var(--n-success-rgb);
     }
     &.warn {
-      --n-popover-c: var(--n-warn);
+      --n-popover-bg: var(--n-warn);
+      --n-popover-rgb: var(--n-warn-rgb);
     }
     &.danger {
-      --n-popover-c: var(--n-danger);
+      --n-popover-bg: var(--n-danger);
+      --n-popover-rgb: var(--n-danger-rgb);
     }
     &.second {
-      --n-popover-c: var(--n-second-100);
+      --n-popover-bg: var(--n-second-100);
+      --n-popover-rgb: var(--n-second-rgb);
     }
     &.base {
-      --n-popover-c: var(--n-base);
-    }
-    &.default {
-      --n-popover-c: var(--n-default);
+      --n-popover-bg: var(--n-base);
+      --n-popover-rgb: var(--n-base-rgb);
     }
     &.brand {
-      --n-popover-c: var(--n-brand);
+      --n-popover-bg: var(--n-brand);
+      --n-popover-rgb: var(--n-brand-rgb);
+    }
+    &:not(.default) {
+      --n-popover-c: var(--n-default);
     }
   }
 

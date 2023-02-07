@@ -1,15 +1,9 @@
 :root {
   --n-second-100: #777777;
-  --n-second-90: #969696;
-  --n-second-80: #a3a3a3;
-  --n-second-70: #afafaf;
-  --n-second-60: #b8b8b8;
-  --n-second-50: #a7a7a7;
-  --n-second-40: #cfcfcf;
-  --n-second-30: #dadada;
-  --n-second-20: #dbdbdb;
-  --n-second-10: #e7e7e7;
-  --n-second-0: #f5f5f5;
+  --n-second-75: #969696;
+  --n-second-50: #afafaf;
+  --n-second-25: #c9c9c9;
+  --n-second-0: #eeeeee;
 
   .c-second-100 {
     color: var(--n-second-100);
@@ -17,29 +11,11 @@
   .bg-second-100 {
     background-color: var(--n-second-100);
   }
-  .c-second-90 {
-    color: var(--n-second-90);
+  .c-second-75 {
+    color: var(--n-second-75);
   }
-  .bg-second-90 {
-    background-color: var(--n-second-90);
-  }
-  .c-second-80 {
-    color: var(--n-second-80);
-  }
-  .bg-second-80 {
-    background-color: var(--n-second-80);
-  }
-  .c-second-70 {
-    color: var(--n-second-70);
-  }
-  .bg-second-70 {
-    background-color: var(--n-second-70);
-  }
-  .c-second-60 {
-    color: var(--n-second-60);
-  }
-  .bg-second-60 {
-    background-color: var(--n-second-60);
+  .bg-second-75 {
+    background-color: var(--n-second-75);
   }
   .c-second-50 {
     color: var(--n-second-50);
@@ -47,29 +23,11 @@
   .bg-second-50 {
     background-color: var(--n-second-50);
   }
-  .c-second-40 {
-    color: var(--n-second-40);
+  .c-second-25 {
+    color: var(--n-second-25);
   }
-  .bg-second-40 {
-    background-color: var(--n-second-40);
-  }
-  .c-second-30 {
-    color: var(--n-second-30);
-  }
-  .bg-second-30 {
-    background-color: var(--n-second-30);
-  }
-  .c-second-20 {
-    color: var(--n-second-20);
-  }
-  .bg-second-20 {
-    background-color: var(--n-second-20);
-  }
-  .c-second-10 {
-    color: var(--n-second-10);
-  }
-  .bg-second-10 {
-    background-color: var(--n-second-10);
+  .bg-second-25 {
+    background-color: var(--n-second-25);
   }
   .c-second-0 {
     color: var(--n-second-0);

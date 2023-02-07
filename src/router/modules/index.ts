@@ -1,4 +1,8 @@
 /**
+ * * Стили
+ */
+import Style from './style';
+/**
  * * Главная
  */
 import Main from './main';
@@ -14,4 +18,4 @@ import Input from './input';
  * * Счетчик
  */
 import Counter from './counter';
-export { Main, Popover, Input, Counter };
+export { Style, Main, Popover, Input, Counter };

@@ -3,7 +3,7 @@ import {
   createWebHistory,
   type RouteRecordRaw,
 } from 'vue-router';
-import { Input, Main, Popover, Counter } from './modules';
+import { Style, Input, Main, Popover, Counter } from './modules';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -12,6 +12,10 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/layout/base-layout.vue'),
     redirect: Main,
     children: [
+      /**
+       * * Стили
+       */
+      Style,
       /**
        * * Главная
        */

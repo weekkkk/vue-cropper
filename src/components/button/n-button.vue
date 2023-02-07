@@ -48,7 +48,7 @@ const props = defineProps({
 
 <style lang="scss">
 :root {
-  --n-button-tx: var(--n-default);
+  --n-button-tx: inherit;
   --n-button-bg: var(--n-default);
   --n-button-px: var(--n-ctrl-default-px);
   --n-button-py: var(--n-ctrl-default-py);
@@ -99,10 +99,13 @@ $br: var(--n-button-br);
       --n-button-sz: var(--n-ctrl-large-sz);
     }
   }
+  &:not(.n-button_color-default) {
+    --n-button-tx: var(--n-default);
+  }
   &_color {
-    &-default {
-      --n-button-bg: var(--n-default);
-    }
+    // &-default {
+    //   --n-button-bg: var(--n-default);
+    // }
     &-base {
       --n-button-bg: var(--n-base);
     }

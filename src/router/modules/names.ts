@@ -18,3 +18,7 @@ export const INPUT = 'input';
  * * Счетчик
  */
 export const COUNTER = 'counter';
+/**
+ * * Кнопка
+ */
+export const BUTTON = 'button';

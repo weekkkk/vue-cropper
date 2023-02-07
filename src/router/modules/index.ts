@@ -18,4 +18,8 @@ import Input from './input';
  * * Счетчик
  */
 import Counter from './counter';
-export { Style, Main, Popover, Input, Counter };
+/**
+ * * Кнопка
+ */
+import Button from './button';
+export { Style, Main, Popover, Button, Input, Counter };

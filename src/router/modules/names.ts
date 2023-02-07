@@ -22,3 +22,7 @@ export const COUNTER = 'counter';
  * * Кнопка
  */
 export const BUTTON = 'button';
+/**
+ * * Дропдаун
+ */
+export const SELECT = 'select';

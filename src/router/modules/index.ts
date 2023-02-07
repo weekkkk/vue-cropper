@@ -22,4 +22,8 @@ import Counter from './counter';
  * * Кнопка
  */
 import Button from './button';
-export { Style, Main, Popover, Button, Input, Counter };
+/**
+ * * Дропдаун
+ */
+import Select from './select';
+export { Style, Main, Popover, Button, Input, Counter, Select };

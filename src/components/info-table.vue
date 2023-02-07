@@ -35,8 +35,8 @@ const props = defineProps({
             </mark>
             <NPopover
               v-else-if="key == 'Type' && row[ key as keyof Info ] instanceof Type"
-              width="max-content"
-              classes="p-2"
+              classes="p-2 ta-c"
+              tooltip
             >
               <mark class="bg-second-0 c-second-100">
                 {{ (row[key as keyof Info] as Type).Name }}
@@ -44,11 +44,10 @@ const props = defineProps({
               <p class="c-danger fw-medium">*</p>
               <template #content>
                 <mark
-                  class="bg-second-0 c-second-100 fs-small-p"
+                  class="bg-second-0 c-second-100 fs-small-p cs-p"
                   style="letter-spacing: 2px"
-                >
-                  {{ (row[key as keyof Info] as Type).FullName }}
-                </mark>
+                  v-html="(row[key as keyof Info] as Type).FullName?.replaceAll(',', '<br>').replaceAll(' ', '')"
+                />
               </template>
             </NPopover>
             <i v-else-if="key == 'Description'" class="c-second-100">

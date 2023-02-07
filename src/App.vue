@@ -17,7 +17,7 @@ html {
 }
 
 table {
-  $border: 1px solid var(--n-second-20);
+  $border: 1px solid var(--n-second-25);
   border-collapse: collapse;
   tr {
     td,

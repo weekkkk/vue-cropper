@@ -67,7 +67,7 @@ const props = defineProps({
 <style lang="scss" scoped>
 .info-table {
   overflow: auto;
-  border: 1px solid var(--n-second-40);
+  border: 1px solid var(--n-second-25);
 
   td {
     &.name,

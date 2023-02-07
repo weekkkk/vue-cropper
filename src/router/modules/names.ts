@@ -1,4 +1,8 @@
 /**
+ * * Стили
+ */
+export const STYLE = 'style';
+/**
  * * Главная
  */
 export const MAIN = 'main';

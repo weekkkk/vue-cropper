@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { type PropType, ref } from 'vue';
+import { type PropType, computed } from 'vue';
 import NPopover from '../popover/n-popover.vue';
 import NInput from '../input/n-input.vue';
 import NOption from '../option/n-option.vue';
-import type { Option } from '../option/models';
+// import { Option } from '../option/models';
 import { EPosition } from '../popover/enums';
 import { ESize } from '../enums';
 import { EType } from '../option/enums';
@@ -12,11 +12,25 @@ import { EType } from '../option/enums';
  */
 const props = defineProps({
   /**
+   * * Значение
+   */
+  modelValue: {
+    type: [String, Number, Object, Array<string | number | object>],
+    default: undefined,
+  },
+  /**
    * * Опции
    */
   options: {
-    type: Array as PropType<Option[]>,
+    type: Array as PropType<(string | number | object)[]>,
     default: [],
+  },
+  /**
+   * * Ключ уникального значения (если значение объект)
+   */
+  valueKey: {
+    type: String,
+    default: undefined,
   },
   /**
    * * Имя группы опций
@@ -38,16 +52,66 @@ const props = defineProps({
    */
   multi: { type: Boolean, default: false },
 });
-
-const test = ref<string | string[] | undefined>(props.multi ? [] : undefined);
+/**
+ * * События
+ */
+const emit = defineEmits<{
+  (
+    e: 'update:modelValue',
+    newValue:
+      | string
+      | number
+      | object
+      | (string | number | object)[]
+      | undefined
+  ): void;
+}>();
+if (props.multi) emit('update:modelValue', []);
+/**
+ * * Получить значение
+ */
+function getValue<T>(
+  option: string | number | object | (string | number | object)[] | undefined
+): string | number | T | undefined {
+  let value: string | number | T | undefined = undefined;
+  // @ts-ignore
+  if (Array.isArray(option)) value = option.map((el) => getValue(el));
+  else if (typeof option == 'object') {
+    if (props.valueKey && (option as Object).hasOwnProperty(props.valueKey))
+      value = option[props.valueKey as keyof object];
+    else console.error('Передаете :value-key');
+    if (typeof value == 'object') console.error('Ключ не может быть объектом');
+  } else value = option;
+  return value;
+}
+/**
+ * * Получить опцию
+ */
+function getOption(value: string | number | undefined) {
+  return props.options.find((option) => getValue(option) == value);
+}
+/**
+ * * Значение
+ */
+const value = computed({
+  get: () => getValue<(string | number)[]>(props.modelValue),
+  set: (newValue: string | number | (string | number)[] | undefined) => {
+    if (Array.isArray(newValue))
+      emit(
+        'update:modelValue',
+        newValue.map((el) => getOption(el))
+      );
+    else emit('update:modelValue', getOption(newValue));
+  },
+});
 </script>
 
 <template>
   <NPopover class="n-select" width="320px" :position="EPosition.Bottom">
-    <NInput :model-value="test?.toString()" :size="size"></NInput>
+    <NInput :model-value="modelValue?.toString()" :size="size"></NInput>
 
     <template #content>
-      <section
+      <ul
         class="n-select-option_list"
         :style="{
           '--n-select-rows': rows,
@@ -55,18 +119,17 @@ const test = ref<string | string[] | undefined>(props.multi ? [] : undefined);
         }"
       >
         <NOption
-          v-model="test"
+          v-model="value"
           v-for="option in options"
-          :value="option.Id + ''"
+          :key="getValue(option)?.toString()"
+          :value="getValue(option)"
           :size="size"
           :name="name"
           :type="multi ? EType.Checkbox : EType.Radio"
         >
-          <slot :option="option">
-            {{ option.Text }}
-          </slot>
+          <slot :option="option" />
         </NOption>
-      </section>
+      </ul>
     </template>
   </NPopover>
 </template>

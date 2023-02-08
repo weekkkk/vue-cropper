@@ -6,7 +6,7 @@ import { Option } from '@/components/option/models';
 import NSelect from '@/components/select/n-select.vue';
 import { ESize } from '@/components/enums';
 
-const value = ref('1');
+const value = ref();
 
 const options = ref<Option[]>([]);
 
@@ -21,15 +21,22 @@ for (let i = 1; i < 20; i++) {
 </script>
 
 <template>
-  {{ value }}
-  <NOption v-model="value" value="1" :size="ESize.Large"> Test </NOption>
-  <NOption v-model="value" value="2"> Test </NOption>
+  <!-- <NOption v-model="value" value="1" :size="ESize.Large"> Test </NOption>
+  <NOption v-model="value" value="2"> Test </NOption> -->
 
-  <NSelect :options="options" :size="ESize.Large">
+  <NSelect
+    v-model="value"
+    :options="[1, 2, 4, 'test', { test: { hi: 'test' }, key: -312980321 }]"
+    value-key="key"
+    name="unicle"
+    :size="ESize.Large"
+    multi
+  >
     <!-- <template #default="{ option }">
       {{ option }}
     </template> -->
   </NSelect>
+  {{ value }}
 </template>
 
 <style lang="less" scoped></style>

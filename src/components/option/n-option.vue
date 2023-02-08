@@ -13,11 +13,14 @@ const props = defineProps({
   /**
    * * Значение
    */
-  modelValue: { type: [String, Array<string>], default: undefined },
+  modelValue: {
+    type: [String, Number, Array<string | number>],
+    default: undefined,
+  },
   /**
    * * Значение
    */
-  value: { type: String, default: undefined },
+  value: { type: [String, Number], default: undefined },
   /**
    * * Имя группы
    */
@@ -39,23 +42,27 @@ const props = defineProps({
  * * События
  */
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: string | string[] | undefined): void;
+  (
+    e: 'update:modelValue',
+    value: string | number | (string | number)[] | undefined
+  ): void;
 }>();
 /**
  * * Значение
  */
 const localvalue = computed({
-  get: (): string | string[] | undefined => {
+  get: (): string | number | (string | number)[] | undefined => {
     return props.modelValue;
   },
-  set: (newValue: string | string[] | undefined) => {
+  set: (newValue: string | number | (string | number)[] | undefined) => {
+    console.log(newValue);
     emit('update:modelValue', newValue);
   },
 });
 </script>
 
 <template>
-  <div class="n-option">
+  <li class="n-option">
     <input
       :type="type"
       v-model="localvalue"
@@ -69,10 +76,10 @@ const localvalue = computed({
       :class="[`n-option-size_${size}`]"
     >
       <i class="icon" v-if="beforeIcon" :class="beforeIcon" />
-      <slot />
+      <slot>{{ value }}</slot>
       <i class="icon" v-if="afterIcon" :class="afterIcon" />
     </label>
-  </div>
+  </li>
 </template>
 
 <style lang="scss">
@@ -106,9 +113,13 @@ $is: var(--n-option-is);
     &:active + .n-option-label,
     &:checked + .n-option-label {
       filter: brightness(90%);
+      &:hover {
+        filter: brightness(92.5%);
+      }
     }
   }
   &-label {
+    cursor: pointer;
     position: relative;
     display: flex;
     align-items: center;

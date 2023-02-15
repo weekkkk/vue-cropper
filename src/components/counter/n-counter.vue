@@ -120,8 +120,6 @@ function down() {
  */
 function up() {
   const input = control.value?.$field as HTMLInputElement;
-  console.log('input.value', input.value);
-
   input.stepUp();
   emit('up', Number(input.value));
   update(Number(input.value));

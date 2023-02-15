@@ -149,32 +149,34 @@ defineExpose({
     ]"
   >
     <slot name="before" />
-    <input
-      v-if="type != EType.Textarea"
-      ref="$field"
-      v-model="value"
-      :placeholder="placeholder"
-      :min="min"
-      :max="max"
-      :step="step"
-      @focus="onFocus"
-      @blur="onBlur"
-      :type="type"
-      :disabled="disabled"
-      :readonly="readonly"
-      :id="id"
-    />
-    <textarea
-      v-else
-      ref="$field"
-      v-model="value"
-      :placeholder="placeholder"
-      @focus="onFocus"
-      @blur="onBlur"
-      :rows="rows"
-      :disabled="disabled"
-      :readonly="readonly"
-    />
+    <slot>
+      <input
+        v-if="type != EType.Textarea"
+        ref="$field"
+        v-model="value"
+        :placeholder="placeholder"
+        :min="min"
+        :max="max"
+        :step="step"
+        @focus="onFocus"
+        @blur="onBlur"
+        :type="type"
+        :disabled="disabled"
+        :readonly="readonly"
+        :id="id"
+      />
+      <textarea
+        v-else
+        ref="$field"
+        v-model="value"
+        :placeholder="placeholder"
+        @focus="onFocus"
+        @blur="onBlur"
+        :rows="rows"
+        :disabled="disabled"
+        :readonly="readonly"
+      />
+    </slot>
     <slot name="after" />
   </div>
 </template>
@@ -212,6 +214,7 @@ $br: var(--n-input-br);
   outline-offset: calc($bw * -1);
   border-radius: $br;
   background-color: $bg;
+  min-height: $sz;
   input,
   textarea {
     border: none;

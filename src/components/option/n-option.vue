@@ -55,7 +55,6 @@ const localvalue = computed({
     return props.modelValue;
   },
   set: (newValue: string | number | (string | number)[] | undefined) => {
-    console.log(newValue);
     emit('update:modelValue', newValue);
   },
 });

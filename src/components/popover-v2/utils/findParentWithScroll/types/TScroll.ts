@@ -1,0 +1,1 @@
+export type TScroll = 'x' | 'y' | 'all';

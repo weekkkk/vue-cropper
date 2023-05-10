@@ -10,4 +10,5 @@ import Main from './main';
  * * Поповер
  */
 import Popover from './popover';
-export { Style, Main, Popover };
+import PopoverV2 from './popover-v2';
+export { Style, Main, Popover, PopoverV2 };

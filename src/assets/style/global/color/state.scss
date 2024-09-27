@@ -1,0 +1,51 @@
+:root {
+  --n-brand-rgb: 132, 220, 198;
+  --n-brand: rgb(var(--n-brand-rgb));
+  --n-success-rgb: 144, 220, 132;
+  --n-success: rgb(var(--n-success-rgb));
+  --n-warn-rgb: 234, 214, 108;
+  --n-warn: rgb(var(--n-warn-rgb));
+  --n-danger-rgb: 220, 132, 132;
+  --n-danger: rgb(var(--n-danger-rgb));
+  --n-base-rgb: 34, 34, 34;
+  --n-base: rgb(var(--n-base-rgb));
+  --n-default-rgb: 255, 255, 255;
+  --n-default: rgb(var(--n-default-rgb));
+
+  .c-brand {
+    color: var(--n-brand);
+  }
+  .bg-brand {
+    background-color: var(--n-brand);
+  }
+  .c-success {
+    color: var(--n-success);
+  }
+  .bg-success {
+    background-color: var(--n-success);
+  }
+  .c-warn {
+    color: var(--n-warn);
+  }
+  .bg-warn {
+    background-color: var(--n-warn);
+  }
+  .c-danger {
+    color: var(--n-danger);
+  }
+  .bg-danger {
+    background-color: var(--n-danger);
+  }
+  .c-base {
+    color: var(--n-base);
+  }
+  .bg-base {
+    background-color: var(--n-base);
+  }
+  .c-default {
+    color: var(--n-default);
+  }
+  .bg-default {
+    background-color: var(--n-default);
+  }
+}
